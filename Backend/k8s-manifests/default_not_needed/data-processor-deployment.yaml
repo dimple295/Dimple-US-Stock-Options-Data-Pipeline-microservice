@@ -52,7 +52,7 @@ spec:
               value: processed-historical-data
             - name: KAFKA_PROCESSED_OPTIONS
               value: processed-options-data
-          image: backend-data-processor:latest
+          image: data-processor:latest
           name: data-processor
           imagePullPolicy: IfNotPresent
           ports:

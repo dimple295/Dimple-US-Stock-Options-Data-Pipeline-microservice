@@ -9,7 +9,7 @@ metadata:
   name: data-api-service
 spec:
   ports:
-    - name: "8006"
+    - name: http
       port: 8006
       targetPort: 8006
   selector:

@@ -52,7 +52,7 @@ spec:
               value: <enter_api_key4_here>
             - name: TWELVE_DATA_API_5
               value: <enter_api_key5_here>
-          image: backend-data-collector:latest
+          image: data-collector:latest
           name: data-collector
           imagePullPolicy: IfNotPresent
           ports:

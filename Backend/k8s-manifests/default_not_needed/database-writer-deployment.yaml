@@ -48,7 +48,7 @@ spec:
               value: processed-options-data
             - name: RUN_DB_HANDLER
               value: "False"
-          image: backend-database-writer:latest
+          image: database-writer-service:latest
           name: database-writer
           imagePullPolicy: IfNotPresent
           ports:
