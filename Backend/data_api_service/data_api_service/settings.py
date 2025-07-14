@@ -34,6 +34,7 @@ ALLOWED_HOSTS = ["*", "localhost"]
 # Application definition
 
 INSTALLED_APPS = [
+    "django_prometheus",
     'api_handler',
     "django.contrib.admin",
     "django.contrib.auth",
@@ -43,7 +44,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     'rest_framework',
     'corsheaders',
-    "django_prometheus",
+    
 ]
 
 MIDDLEWARE = [

@@ -5,7 +5,6 @@ helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo update
 
 helm install prometheus prometheus-community/kube-prometheus-stack \
-  --namespace monitoring --create-namespace \
   --set prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues=false \
   --set grafana.enabled=true \
   --set grafana.adminPassword=admin \
@@ -14,8 +13,8 @@ helm install prometheus prometheus-community/kube-prometheus-stack \
   --set nodeExporter.service.port=9100
 
 
+
 helm install kafka bitnami/kafka \
-  --namespace stock-pipeline --create-namespace \
   --set kraft.enabled=false \
   --set zookeeper.enabled=true \
   --set zookeeper.replicaCount=1 \
@@ -26,4 +25,5 @@ helm install kafka bitnami/kafka \
   --set controller.replicaCount=0 \
   --version 26.9.0
 
-helm install ingress-nginx ingress-nginx/ingress-nginx --create-namespace --namespace ingress-nginx --set controller.service.type=NodePort
+
+# helm install ingress-nginx ingress-nginx/ingress-nginx --create-namespace --namespace ingress-nginx --set controller.service.type=NodePort

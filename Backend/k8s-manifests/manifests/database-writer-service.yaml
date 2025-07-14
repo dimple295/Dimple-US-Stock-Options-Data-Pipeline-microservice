@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert --file docker-compose.yml --out k8s-manifests
+    kompose.version: 1.36.0 (HEAD)
+  labels:
+    io.kompose.service: database-writer
+  name: database-writer
+  # namespace: stock-pipeline
+spec:
+  ports:
+    - name: http
+      port: 8002
+      targetPort: 8002
+  selector:
+    io.kompose.service: database-writer
