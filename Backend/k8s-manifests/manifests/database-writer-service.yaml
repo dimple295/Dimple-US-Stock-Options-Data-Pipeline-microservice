@@ -9,6 +9,7 @@ metadata:
   name: database-writer
   # namespace: stock-pipeline
 spec:
+  type: ClusterIP
   ports:
     - name: http
       port: 8002

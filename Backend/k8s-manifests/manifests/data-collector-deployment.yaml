@@ -21,6 +21,8 @@ spec:
       labels:
         io.kompose.service: data-collector
     spec:
+      # imagePullSecrets:
+      #   - name: dockerhub-secret
       containers:
         - env:
             - name: APP_DEBUG

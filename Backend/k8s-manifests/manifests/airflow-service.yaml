@@ -9,6 +9,7 @@ metadata:
   name: airflow
   # namespace: stock-pipeline
 spec:
+  type: ClusterIP
   ports:
     - name: "8080"
       port: 8080

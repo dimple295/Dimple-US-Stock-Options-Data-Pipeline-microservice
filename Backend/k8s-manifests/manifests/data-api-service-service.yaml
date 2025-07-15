@@ -9,6 +9,7 @@ metadata:
   name: data-api-service
   # namespace: stock-pipeline
 spec:
+  type: ClusterIP
   ports:
     - name: http
       port: 8006

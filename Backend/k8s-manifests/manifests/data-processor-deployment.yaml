@@ -21,6 +21,8 @@ spec:
       labels:
         io.kompose.service: data-processor
     spec:
+      # imagePullSecrets:
+      #   - name: dockerhub-secret
       containers:
         - env:
             - name: APP_DEBUG

@@ -26,4 +26,5 @@ helm install kafka bitnami/kafka \
   --version 26.9.0
 
 
-# helm install ingress-nginx ingress-nginx/ingress-nginx --create-namespace --namespace ingress-nginx --set controller.service.type=NodePort
+helm install nginx-ingress ingress-nginx/ingress-nginx \
+  --set controller.publishService.enabled=true

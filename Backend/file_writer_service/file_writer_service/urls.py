@@ -30,5 +30,4 @@ urlpatterns = [
     path("api/", include("file_writer.urls")),
     path("metrics/", exports.ExportToDjangoView, name="prometheus-django-metrics"),
     path("health/", health_check),
-
 ]

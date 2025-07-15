@@ -21,6 +21,8 @@ spec:
       labels:
         io.kompose.service: database-writer
     spec:
+      # imagePullSecrets:
+      #   - name: dockerhub-secret
       containers:
         - env:
             - name: APP_DEBUG

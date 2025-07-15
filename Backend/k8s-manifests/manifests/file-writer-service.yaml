@@ -9,8 +9,9 @@ metadata:
   name: file-writer
   # namespace: stock-pipeline
 spec:
+  type: ClusterIP
   ports:
-    - name: "8003"
+    - name: http
       port: 8003
       targetPort: 8003
   selector:

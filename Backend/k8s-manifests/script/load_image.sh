@@ -1,21 +1,29 @@
-# docker compose build 
-# kind load docker-image backend-airflow:latest --name kind
-# kind load docker-image backend-data-collector:latest --name kind
-# kind load docker-image backend-data-processor:latest --name kind
-# kind load docker-image backend-database-writer:latest --name kind
-# kind load docker-image backend-file-writer:latest --name kind
-# kind load docker-image backend-data-api-service:latest --name kind
-
-
-
-#!/bin/bash
-
 # Set your Docker Hub username (or other registry)
 REGISTRY_USER="hdm08"
 TAG="latest"
 
-# Build all images using Docker Compose
 docker compose build
+# Build all images using Docker Compose
+# cd ../../
+# cd data_collector_service/
+# docker buildx build --platform linux/amd64 -t hdm08/backend-data-collector --push .
+# cd ..
+
+# cd  data_processor_service/
+# docker buildx build --platform linux/amd64 -t hdm08/backend-data-processor --push .
+# cd ..
+
+# cd  database_writer_service/
+# docker buildx build --platform linux/amd64 -t hdm08/backend-database-writer --push .
+# cd ..
+
+# cd  file_writer_service/ 
+# docker buildx build --platform linux/amd64 -t hdm08/backend-file-writer --push .
+# cd ..
+
+# cd  data_api_service/   
+# docker buildx build --platform linux/amd64 -t hdm08/backend-data-api-service --push .
+# cd ..
 
 # List of service image names
 services=(
@@ -30,10 +38,13 @@ services=(
 # Tag and push each image
 for service in "${services[@]}"
 do
+
   IMAGE_NAME="$REGISTRY_USER/$service:$TAG"
-  
-  echo "Tagging image: $service -> $IMAGE_NAME"
-  docker tag $service $IMAGE_NAME
+    # IMAGE_NAME="$REGISTRY_USER/backend-file-writer:$TAG"
+
+  # echo "Tagging image: $service -> $IMAGE_NAME"
+  # docker tag $service $IMAGE_NAME
+  # docker tag backend-file-writer "$REGISTRY_USER/$IMAGE_NAME"
 
   echo "Pushing image: $IMAGE_NAME"
   docker push $IMAGE_NAME

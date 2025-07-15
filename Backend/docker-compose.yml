@@ -3,6 +3,7 @@ x-airflow-common:
     build:
       context: .
       dockerfile: Dockerfile-airflow
+
     image: hdm08/backend-airflow:latest
     environment:
       &airflow-common-env
@@ -53,6 +54,8 @@ services:
     build:
       context: ./data_collector_service
       dockerfile: Dockerfile
+      
+
     image: hdm08/backend-data-collector:latest
 
     environment:
@@ -83,6 +86,8 @@ services:
     build:
       context: ./data_processor_service
       dockerfile: Dockerfile
+      
+
     image: hdm08/backend-data-processor:latest
 
     environment:
@@ -113,6 +118,8 @@ services:
     build:
       context: ./database_writer_service
       dockerfile: Dockerfile
+      
+
     image: hdm08/backend-database-writer:latest
 
     environment:
@@ -144,6 +151,8 @@ services:
     build:
       context: ./file_writer_service    
       dockerfile: Dockerfile
+      
+
     image: hdm08/backend-file-writer:latest
 
     environment:
@@ -163,6 +172,8 @@ services:
     build:
       context: ./data_api_service
       dockerfile: Dockerfile
+      
+
     image: hdm08/backend-data-api-service:latest
 
     environment:
