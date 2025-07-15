@@ -17,7 +17,7 @@ RUN chmod +x /entrypoint.sh
 
 USER airflow
 
-COPY airflow_scheduler_service/requirements.txt .
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY airflow_scheduler_service ./airflow_scheduler_service
@@ -28,4 +28,4 @@ ENV AIRFLOW__CORE__DAGS_FOLDER=/opt/airflow/dags
 
 EXPOSE 8080
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["../entrypoint.sh"]
