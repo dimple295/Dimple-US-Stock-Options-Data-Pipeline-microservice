@@ -1,17 +1,18 @@
-@import '../../styles.scss';
+@import "../../styles.scss";
 
 .dashboard-bg {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: $background !important;
+  // background: $background !important;
+  background: #000036 !important;
   position: relative;
   overflow: hidden;
 }
 
 .dashboard-bg::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -21,19 +22,29 @@
   opacity: 0.3;
 }
 
-.dashboard-card, .summary-card, .chart-card, .options-card {
-  background: $card-bg !important;
+.main_card{
+  background: transparent !important;
+  border: transparent !important;
+}
+
+.dashboard-card,
+.summary-card,
+.chart-card,
+.options-card {
+  background: linear-gradient(90deg, rgba(2, 0, 36, 1) 0%, rgba(9, 9, 121, 1) 100%) !important;
+  border: transparent !important;
+  // background: $card-bg !important;
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
   border-radius: 32px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-  padding: 3rem 3.5rem 2.5rem 3.5rem;
+  padding: 1rem;
   max-width: 1000px;
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  border: none !important;
+  // border: none !important;
   position: relative;
   z-index: 1;
   color: $text-primary !important;
@@ -50,7 +61,10 @@
   padding: 40px !important;
 }
 
-.dashboard-title, .summary-title, .options-title, .chart-title {
+.dashboard-title,
+.summary-title,
+.options-title,
+.chart-title {
   color: $text-primary !important;
   background: none !important;
   -webkit-background-clip: initial !important;
@@ -63,7 +77,8 @@
   text-shadow: none !important;
 }
 
-.chart-title, .options-title {
+.chart-title,
+.options-title {
   color: $text-primary !important;
   font-weight: 700;
   background: none !important;
@@ -73,15 +88,23 @@
   text-shadow: none !important;
 }
 
-.dashboard-summary-header, .summary-details, .options-filters {
+.dashboard-summary-header,
+.summary-details,
+.options-filters {
   color: $text-primary !important;
 }
 
-.summary-company, .summary-detail span, .options-table-placeholder {
+.summary-company,
+.summary-detail span,
+.options-table-placeholder {
   color: $text-secondary !important;
 }
 
-.summary-symbol, .summary-price, .summary-detail b, .options-table th, .options-table td {
+.summary-symbol,
+.summary-price,
+.summary-detail b,
+.options-table th,
+.options-table td {
   color: $text-primary !important;
 }
 
@@ -94,7 +117,8 @@
 }
 
 .options-filter-select {
-  background: $card-bg !important;
+  // background: $card-bg !important;
+  background: #090979 !important;
   border-radius: 10px;
   border: 1.5px solid $primary;
   color: $text-primary !important;
@@ -212,7 +236,8 @@
 .mini-sparkline-placeholder {
   width: 80px;
   height: 28px;
-  background: $divider !important;
+  // background: $divider !important;
+  background: #020117 !important;
   border-radius: 8px;
   margin-top: 0.2rem;
   display: flex;
@@ -260,7 +285,7 @@
   width: 100%;
   height: 320px;
   border-radius: 12px;
-  background: #f6f8fb;
+  background: #232946 !important;
 }
 
 .straddle-tables {
@@ -284,7 +309,8 @@
 .straddle-table-block .options-table {
   font-size: 0.97rem;
 }
-.straddle-table-block .options-table th, .straddle-table-block .options-table td {
+.straddle-table-block .options-table th,
+.straddle-table-block .options-table td {
   padding: 0.5rem 0.7rem;
 }
 .straddle-table-block .options-table th {
@@ -319,6 +345,7 @@
 .list-table-scroll .options-table,
 .list-table-scroll .options-table th,
 .list-table-scroll .options-table td {
+  background-color: #020117 !important;
   color: $text-primary !important;
   opacity: 1 !important;
 }
@@ -335,7 +362,8 @@
   font-size: 1rem;
   overflow: hidden;
 }
-.options-table th, .options-table td {
+.options-table th,
+.options-table td {
   padding: 0.7rem 1rem;
   text-align: left;
 }
@@ -376,12 +404,13 @@
 .options-table-title {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #232946;
+  // color: #232946;
   margin: 1.2rem 0 0.5rem 0;
   letter-spacing: 0.5px;
 }
 
-.options-table td:last-child, .options-table th:last-child {
+.options-table td:last-child,
+.options-table th:last-child {
   padding-right: 3rem;
   white-space: nowrap;
 }
@@ -404,7 +433,7 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(255,255,255,0.7);
+  background: rgba(255, 255, 255, 0.7);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -429,8 +458,12 @@
 }
 
 @keyframes bounce {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(-18px) scale(1.08); }
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-18px) scale(1.08);
+  }
 }
 
 .dashboard-summary-container {
@@ -440,7 +473,8 @@
 }
 
 .dashboard-summary-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  // background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(90deg, rgba(2, 0, 36, 1) 0%, rgba(9, 9, 121, 1) 100%) !important;
   box-shadow: none;
   border: none;
   display: flex;
@@ -522,7 +556,10 @@
   border-radius: 16px !important;
 }
 
-.dashboard-card, .summary-card, .chart-card, .options-card {
+.dashboard-card,
+.summary-card,
+.chart-card,
+.options-card {
   border-radius: 16px;
 }
 
@@ -568,7 +605,10 @@
 }
 
 @media (max-width: 900px) {
-  .dashboard-card, .summary-card, .chart-card, .options-card {
+  .dashboard-card,
+  .summary-card,
+  .chart-card,
+  .options-card {
     padding: 2rem 1.2rem 1.5rem 1.2rem;
     max-width: 100%;
     border-radius: 18px;
@@ -614,7 +654,10 @@
     justify-content: flex-start;
     padding: 0.5rem;
   }
-  .dashboard-card, .summary-card, .chart-card, .options-card {
+  .dashboard-card,
+  .summary-card,
+  .chart-card,
+  .options-card {
     padding: 1rem 0.3rem 1rem 0.3rem;
     border-radius: 10px;
     min-width: 0;
