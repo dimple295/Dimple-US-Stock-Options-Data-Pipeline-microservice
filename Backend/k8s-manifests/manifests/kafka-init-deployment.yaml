@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert --file docker-compose.yml --out k8s-manifests
+    kompose.version: 1.36.0 (HEAD)
+  labels:
+    io.kompose.service: kafka-init
+  name: kafka-init
+  # namespace: stock-pipeline
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: kafka-init
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert --file docker-compose.yml --out k8s-manifests
+        kompose.version: 1.36.0 (HEAD)
+      labels:
+        io.kompose.service: kafka-init
+    spec:
+      containers:
+        - args:
+            - |2
+              for i in {1..30}; do
+                kafka-broker-api-versions --bootstrap-server kafka:9092 && break
+                echo 'Waiting for Kafka to be ready...'
+                sleep 5
+              done
+
+              kafka-topics --create --topic fetch-trigger-daily            --bootstrap-server kafka:9092 --replication-factor 1 --partitions 5
+              kafka-topics --create --topic fetch-trigger-15min            --bootstrap-server kafka:9092 --replication-factor 1 --partitions 5
+              kafka-topics --create --topic fetch-trigger-historical       --bootstrap-server kafka:9092 --replication-factor 1 --partitions 5
+              kafka-topics --create --topic fetch-trigger-options          --bootstrap-server kafka:9092 --replication-factor 1 --partitions 5
+
+              kafka-topics --create --topic daily-data                     --bootstrap-server kafka:9092 --replication-factor 1 --partitions 5
+              kafka-topics --create --topic 15min-data                     --bootstrap-server kafka:9092 --replication-factor 1 --partitions 5
+              kafka-topics --create --topic options-data                   --bootstrap-server kafka:9092 --replication-factor 1 --partitions 5
+              kafka-topics --create --topic historical-data                --bootstrap-server kafka:9092 --replication-factor 1 --partitions 5
+
+              kafka-topics --create --topic processed-daily-data           --bootstrap-server kafka:9092 --replication-factor 1 --partitions 5
+              kafka-topics --create --topic processed-15min-data           --bootstrap-server kafka:9092 --replication-factor 1 --partitions 5
+              kafka-topics --create --topic processed-options-data         --bootstrap-server kafka:9092 --replication-factor 1 --partitions 5
+              kafka-topics --create --topic processed-historical-data      --bootstrap-server kafka:9092 --replication-factor 1 --partitions 5
+
+              kafka-topics --create --topic processed-file-daily-data      --bootstrap-server kafka:9092 --replication-factor 1 --partitions 5
+              kafka-topics --create --topic processed-file-15min-data      --bootstrap-server kafka:9092 --replication-factor 1 --partitions 5
+              kafka-topics --create --topic processed-file-options-data    --bootstrap-server kafka:9092 --replication-factor 1 --partitions 5
+              kafka-topics --create --topic processed-file-historical-data --bootstrap-server kafka:9092 --replication-factor 1 --partitions 5
+
+              echo 'Kafka topics created!'
+          command:
+            - /bin/bash
+            - -c
+          image: confluentinc/cp-kafka:7.4.0
+          name: kafka-init
+      restartPolicy: Always

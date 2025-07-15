@@ -1,0 +1,47 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: microservices-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  namespace: default
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /data-api
+            pathType: Prefix
+            backend:
+              service:
+                name: data-api-service
+                port:
+                  number: 8006
+          - path: /collector
+            pathType: Prefix
+            backend:
+              service:
+                name: data-collector
+                port:
+                  number: 8000
+          - path: /processor
+            pathType: Prefix
+            backend:
+              service:
+                name: data-processor
+                port:
+                  number: 8001
+          - path: /db-writer
+            pathType: Prefix
+            backend:
+              service:
+                name: database-writer
+                port:
+                  number: 8002
+          - path: /file-writer
+            pathType: Prefix
+            backend:
+              service:
+                name: file-writer
+                port:
+                  number: 8003
