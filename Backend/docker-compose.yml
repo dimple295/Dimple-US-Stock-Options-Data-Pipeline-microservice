@@ -1,7 +1,7 @@
 x-airflow-common:
   &airflow-common
     build:
-      context: .
+      context: ./airflow_scheduler_service
       dockerfile: Dockerfile-airflow
 
     image: hdm08/backend-airflow:latest
@@ -334,7 +334,7 @@ services:
       - "9090:9090"
     networks:
       - stock_pipeline
-      - monitoring
+    
 
 
   grafana:
@@ -348,7 +348,7 @@ services:
       - grafana_data:/var/lib/grafana
     networks:
       - stock_pipeline
-      - monitoring
+
   
   node-exporter:
     image: prom/node-exporter:latest
@@ -356,7 +356,7 @@ services:
     ports:
       - "9100:9100"
     networks:
-      - monitoring
+      - stock_pipeline
 
 volumes:
   mysql_data:
@@ -369,6 +369,4 @@ volumes:
 
 networks:
   stock_pipeline:
-    driver: bridge
-  monitoring:
     driver: bridge
