@@ -221,7 +221,8 @@ export class Dashboard implements OnInit, AfterViewInit {
     this.chart = Highcharts.stockChart(this.chartEl.nativeElement, {
       chart: {
         type: 'areaspline',
-        backgroundColor: '#181A20', // match dark mode
+        // backgroundColor: '#181A20', // match dark mode
+        backgroundColor: '#020117'
       },
       title: {
         text: `${this.selectedStock} Stock Analysis`,
@@ -258,10 +259,10 @@ export class Dashboard implements OnInit, AfterViewInit {
           type : 'areaspline',
           name : `${this.selectedStock} Price`,
           data : this.chartData,
-          fillOpacity: 0.3,
-          color: '#8ecae6', // pastel blue
-          lineColor: '#8ecae6',
-          marker: { fillColor: '#ffe066', lineColor: '#8ecae6', lineWidth: 2 }, // pastel yellow marker
+          fillOpacity: 0.2,
+          color: '#1D11F5', // pastel blue
+          lineColor: '#1D11F5',
+          marker: { fillColor: '#ffe066', lineColor: '#1D11F5', lineWidth: 2 }, // pastel yellow marker
           tooltip: { valueDecimals: 2, valuePrefix: '$' },
         },
       ],
