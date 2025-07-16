@@ -106,7 +106,7 @@ class ThreadedDataCollector:
         elif self.trigger_type == 'historical':
             params_base = {
                 "interval": "1day",
-                "start_date": (datetime.now(ZoneInfo("UTC")).date() - timedelta(days=7)).strftime('%Y-%m-%d'),
+                "start_date": (datetime.now(ZoneInfo("UTC")).date() - timedelta(days=3650)).strftime('%Y-%m-%d'),
                 "end_date": datetime.now(ZoneInfo("UTC")).date().strftime('%Y-%m-%d'),
                 "outputsize": 5000
             }
