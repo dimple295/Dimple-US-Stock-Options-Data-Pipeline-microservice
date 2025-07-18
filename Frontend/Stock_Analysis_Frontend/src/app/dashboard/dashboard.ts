@@ -278,6 +278,12 @@ export class Dashboard implements OnInit, AfterViewInit {
     }
   }
 
+  onKeyPress(event: KeyboardEvent) {
+    if (event.key === 'Enter') {
+      this.searchStock();
+    }
+  }
+
   reloadData() {
     this.ngOnInit();
   }
