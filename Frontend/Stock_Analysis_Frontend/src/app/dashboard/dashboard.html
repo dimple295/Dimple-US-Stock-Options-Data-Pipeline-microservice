@@ -8,8 +8,30 @@
   {{ error }}
 </div>
 
-<div class="dashboard-summary-header">
+<!-- Search bar section with back arrow on the left -->
+<div class="search-bar-section">
   <span class="back-arrow" routerLink="/">&#8592;</span>
+  <div class="search-card">
+    <mat-icon class="search-icon">search</mat-icon>
+    <input
+      matInput
+      [(ngModel)]="searchQuery"
+      placeholder="Search by ticker symbol or company name (e.g., AAPL, Apple)"
+      (keyup)="onKeyPress($event)"
+      class="search-input"
+    />
+    <button
+      mat-raised-button
+      (click)="searchStock()"
+      class="search-button"
+      [disabled]="!searchQuery.trim()"
+    >
+      SEARCH
+    </button>
+  </div>
+</div>
+
+<div class="dashboard-summary-header">
   <span class="summary-title">Stock Summary</span>
 </div>
 
@@ -34,9 +56,9 @@
                 </span>
               </div>
             </div>
-            <div class="mini-sparkline-placeholder">
-              <!-- Mini sparkline chart will go here -->
-            </div>
+            <!-- <div class="mini-sparkline-placeholder">
+              Mini sparkline chart will go here
+            </div> -->
           </div>
         </div>
         <div class="summary-details">
