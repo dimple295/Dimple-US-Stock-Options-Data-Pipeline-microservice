@@ -463,6 +463,8 @@
 import psycopg2
 import time
 import logging
+import json
+import math
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -470,6 +472,13 @@ from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
+class CustomJSONEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, float):
+            if math.isnan(obj) or math.isinf(obj):
+                return None
+        return super().default(obj)
+    
 def get_connection_string():
     """Construct PostgreSQL connection string from Django DATABASES settings."""
     db_settings = settings.DATABASES['default']
@@ -566,7 +575,6 @@ class OptionsDataView(APIView):
             conn = connect_with_retry()
             cursor = conn.cursor()
 
-            # Verify tables
             cursor.execute("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'put_options')")
             if not cursor.fetchone()[0]:
                 raise Exception("put_options table not found")
@@ -575,7 +583,6 @@ class OptionsDataView(APIView):
             if not cursor.fetchone()[0]:
                 raise Exception("call_options table not found")
 
-            # Fetch put options
             select_put_query = """
                 SELECT "contractSymbol", "lastTradeDate", "expirationDate", "strike", "lastPrice", 
                        "bid", "ask", "change", "percentChange", "volume", "openInterest", 
@@ -584,8 +591,10 @@ class OptionsDataView(APIView):
             """
             cursor.execute(select_put_query)
             put_options = []
-            for row in cursor.fetchall():
-                put_options.append({
+            put_rows = cursor.fetchall()
+            logger.info(f"Put Data: {put_rows}")
+            for row in put_rows:
+                put_option = {
                     'contractSymbol': row[0],
                     'lastTradeDate': row[1].isoformat() if row[1] else None,
                     'expirationDate': row[2].isoformat().split('T')[0] if row[2] else None,
@@ -602,9 +611,13 @@ class OptionsDataView(APIView):
                     'contractSize': row[13],
                     'currency': row[14],
                     'StockName': row[15],
-                })
+                }
+                for key in ['strike', 'lastPrice', 'bid', 'ask', 'change', 'percentChange', 'impliedVolatility']:
+                    if put_option[key] is not None and (math.isnan(put_option[key]) or math.isinf(put_option[key])):
+                        logger.warning(f"Problematic value in put_options, contractSymbol={put_option['contractSymbol']}, key={key}, value={put_option[key]}")
+                        put_option[key] = None
+                put_options.append(put_option)
 
-            # Fetch call options
             select_call_query = """
                 SELECT "contractSymbol", "lastTradeDate", "expirationDate", "strike", "lastPrice", 
                        "bid", "ask", "change", "percentChange", "volume", "openInterest", 
@@ -613,8 +626,10 @@ class OptionsDataView(APIView):
             """
             cursor.execute(select_call_query)
             call_options = []
-            for row in cursor.fetchall():
-                call_options.append({
+            call_rows = cursor.fetchall()
+            logger.info(f"Call Data: {call_rows}")
+            for row in call_rows:
+                call_option = {
                     'contractSymbol': row[0],
                     'lastTradeDate': row[1].isoformat() if row[1] else None,
                     'expirationDate': row[2].isoformat().split('T')[0] if row[2] else None,
@@ -631,16 +646,23 @@ class OptionsDataView(APIView):
                     'contractSize': row[13],
                     'currency': row[14],
                     'StockName': row[15],
-                })
+                }
+                for key in ['strike', 'lastPrice', 'bid', 'ask', 'change', 'percentChange', 'impliedVolatility']:
+                    if call_option[key] is not None and (math.isnan(call_option[key]) or math.isinf(call_option[key])):
+                        logger.warning(f"Problematic value in call_options, contractSymbol={call_option['contractSymbol']}, key={key}, value={call_option[key]}")
+                        call_option[key] = None
+                call_options.append(call_option)
 
             response_data = {
                 'status': 'success',
                 'data': {
                     'put_options': put_options,
                     'call_options': call_options,
+                    'total_put_rows': len(put_options),
+                    'total_call_rows': len(call_options)
                 }
             }
-            return Response(response_data, status=status.HTTP_200_OK)
+            return Response(response_data, status=status.HTTP_200_OK, content_type='application/json')
 
         except psycopg2.Error as e:
             logger.error(f"Database error: {e}")
@@ -675,13 +697,13 @@ class SearchStockView(APIView):
             conn = connect_with_retry()
             cursor = conn.cursor()
 
-            # Verify tables
             cursor.execute("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'StockData')")
             if not cursor.fetchone()[0]:
                 raise Exception("StockData table not found")
             cursor.execute("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'put_options')")
             if not cursor.fetchone()[0]:
                 raise Exception("put_options table not found")
+            
             cursor.execute("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'call_options')")
             if not cursor.fetchone()[0]:
                 raise Exception("call_options table not found")
@@ -693,16 +715,16 @@ class SearchStockView(APIView):
             """
             put_query = """
                 SELECT "contractSymbol", "lastTradeDate", "expirationDate", "strike", "lastPrice", 
-                       "bid", "ask", "change", "percentChange", "volume", "openInterest", 
-                       "impliedVolatility", "inTheMoney", "contractSize", "currency", "StockName" 
+                        "bid", "ask", "change", "percentChange", "volume", "openInterest", 
+                        "impliedVolatility", "inTheMoney", "contractSize", "currency", "StockName" 
                 FROM public.put_options 
                 WHERE UPPER("StockName") LIKE UPPER(%s)
             """
             call_query = """
                 SELECT "contractSymbol", "lastTradeDate", "expirationDate", "strike", "lastPrice", 
-                       "bid", "ask", "change", "percentChange", "volume", "openInterest", 
-                       "impliedVolatility", "inTheMoney", "contractSize", "currency", "StockName" 
-                FROM public.call_options 
+                        "bid", "ask", "change", "percentChange", "volume", "openInterest", 
+                        "impliedVolatility", "inTheMoney", "contractSize", "currency", "StockName" 
+                FROM public.call_options
                 WHERE UPPER("StockName") LIKE UPPER(%s)
             """
 
@@ -710,7 +732,7 @@ class SearchStockView(APIView):
             cursor.execute(stock_query, (search_pattern,))
             stock_data = []
             for row in cursor.fetchall():
-                stock_data.append({
+                stock_entry = {
                     'symbol': row[0],
                     'date': row[1].isoformat().split('T')[0] if row[1] else None,
                     'open': float(row[2]) if row[2] is not None else None,
@@ -718,12 +740,19 @@ class SearchStockView(APIView):
                     'low': float(row[4]) if row[4] is not None else None,
                     'close': float(row[5]) if row[5] is not None else None,
                     'volume': int(row[6]) if row[6] is not None else None
-                })
+                }
+                for key in ['open', 'high', 'low', 'close']:
+                    if stock_entry[key] is not None and (math.isnan(stock_entry[key]) or math.isinf(stock_entry[key])):
+                        logger.warning(f"Problematic value in stock_data, symbol={stock_entry['symbol']}, key={key}, value={stock_entry[key]}")
+                        stock_entry[key] = None
+                stock_data.append(stock_entry)
 
             cursor.execute(put_query, (search_pattern,))
             put_options = []
-            for row in cursor.fetchall():
-                put_options.append({
+            put_rows = cursor.fetchall()
+            logger.info(f"Put Data: {put_rows}")
+            for row in put_rows:
+                put_option = {
                     'contractSymbol': row[0],
                     'lastTradeDate': row[1].isoformat() if row[1] else None,
                     'expirationDate': row[2].isoformat().split('T')[0] if row[2] else None,
@@ -740,12 +769,19 @@ class SearchStockView(APIView):
                     'contractSize': row[13],
                     'currency': row[14],
                     'StockName': row[15],
-                })
+                }
+                for key in ['strike', 'lastPrice', 'bid', 'ask', 'change', 'percentChange', 'impliedVolatility']:
+                    if put_option[key] is not None and (math.isnan(put_option[key]) or math.isinf(put_option[key])):
+                        logger.warning(f"Problematic value in put_options, contractSymbol={put_option['contractSymbol']}, key={key}, value={put_option[key]}")
+                        put_option[key] = None
+                put_options.append(put_option)
 
             cursor.execute(call_query, (search_pattern,))
             call_options = []
-            for row in cursor.fetchall():
-                call_options.append({
+            call_rows = cursor.fetchall()
+            logger.info(f"Call Data: {call_rows}")
+            for row in call_rows:
+                call_option = {
                     'contractSymbol': row[0],
                     'lastTradeDate': row[1].isoformat() if row[1] else None,
                     'expirationDate': row[2].isoformat().split('T')[0] if row[2] else None,
@@ -762,7 +798,12 @@ class SearchStockView(APIView):
                     'contractSize': row[13],
                     'currency': row[14],
                     'StockName': row[15],
-                })
+                }
+                for key in ['strike', 'lastPrice', 'bid', 'ask', 'change', 'percentChange', 'impliedVolatility']:
+                    if call_option[key] is not None and (math.isnan(call_option[key]) or math.isinf(call_option[key])):
+                        logger.warning(f"Problematic value in call_options, contractSymbol={call_option['contractSymbol']}, key={key}, value={call_option[key]}")
+                        call_option[key] = None
+                call_options.append(call_option)
 
             response_data = {
                 'status': 'success',
@@ -775,7 +816,7 @@ class SearchStockView(APIView):
                     'total_call_rows': len(call_options)
                 }
             }
-            return Response(response_data, status=status.HTTP_200_OK)
+            return Response(response_data, status=status.HTTP_200_OK, content_type='application/json')
 
         except psycopg2.Error as e:
             logger.error(f"Database error: {e}")
