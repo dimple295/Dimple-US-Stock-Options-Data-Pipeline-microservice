@@ -2,9 +2,9 @@ x-airflow-common:
   &airflow-common
     build:
       context: ./airflow_scheduler_service
-      dockerfile: Dockerfile-airflow
+      dockerfile: Dockerfile
 
-    image: hdm08/backend-airflow:latest
+    image: airflow:latest
     environment:
       &airflow-common-env
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
@@ -13,14 +13,14 @@ x-airflow-common:
       AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
       AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session'
-      AIRFLOW__CORE__SQL_ALCHEMY_POOL_ENABLED: 'True'
-      AIRFLOW__CORE__SQL_ALCHEMY_POOL_SIZE: 5
-      AIRFLOW__CORE__SQL_ALCHEMY_MAX_OVERFLOW: 10
-      AIRFLOW__CORE__SQL_ALCHEMY_POOL_RECYCLE: 1800
+      environment:
+      AIRFLOW__DATABASE__SQL_ALCHEMY_POOL_ENABLED: 'True'
+      AIRFLOW__DATABASE__SQL_ALCHEMY_POOL_SIZE: 5
+      AIRFLOW__DATABASE__SQL_ALCHEMY_MAX_OVERFLOW: 10
+      AIRFLOW__DATABASE__SQL_ALCHEMY_POOL_RECYCLE: 1800
     volumes:
-      - ./dags:/opt/airflow/dags
+      - ./airflow_scheduler_service/dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
-      - ./ca.pem:/ca.pem
     user: "${AIRFLOW_UID:-50000}:0"
     depends_on:
       kafka:
@@ -107,7 +107,7 @@ services:
       dockerfile: Dockerfile
       
 
-    image: hdm08/backend-data-collector:latest
+    image: data-collector:latest
 
     environment:
       - TWELVE_DATA_API_1=889ef64f57ef4abea88ae2e0bbbe3537
@@ -131,6 +131,14 @@ services:
       - kafka
     networks:
       - stock_pipeline
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 4G
+        reservations:
+          cpus: '0.5'
+          memory: 2G
   
   data-processor:
     build:
@@ -138,7 +146,7 @@ services:
       dockerfile: Dockerfile
       
 
-    image: hdm08/backend-data-processor:latest
+    image: data-processor:latest
 
     environment:
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
@@ -170,7 +178,7 @@ services:
       dockerfile: Dockerfile
       
 
-    image: hdm08/backend-database-writer:latest
+    image: database-writer:latest
 
     environment:
       - AZURE_SQL_CONNECTION_STRING=${AZURE_SQL_CONNECTION_STRING}
@@ -206,7 +214,7 @@ services:
       dockerfile: Dockerfile
       
 
-    image: hdm08/backend-file-writer:latest
+    image: file-writer:latest
 
     environment:
       - AZURE_SQL_CONNECTION_STRING=${AZURE_SQL_CONNECTION_STRING}
@@ -228,7 +236,7 @@ services:
       dockerfile: Dockerfile
       
 
-    image: hdm08/backend-data-api-service:latest
+    image: data-api-service:latest
 
     environment:
       - POSTGRES_CONNECTION_STRING=postgresql://sa:Passw0rd!@postgres:5432/us_stock_options_db
