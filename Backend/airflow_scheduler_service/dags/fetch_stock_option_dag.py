@@ -170,8 +170,8 @@ with DAG(
     "fetch_historical_data",
     default_args=default_args,
     description="DAG to fetch historical stock data once",
-    schedule_interval="56 23 * * *",
-    start_date=datetime(2025, 7, 18, tzinfo=local_tz),
+    schedule_interval="10 20 * * *",
+    start_date=datetime(2025, 7, 19, tzinfo=local_tz),
     catchup=False,
 ) as dag_historical:
     fetch_historical_data = create_http_task("fetch_historical_data", "fetch_historical_data", dag_historical)
@@ -182,8 +182,8 @@ with DAG(
     "fetch_stock_daily",
     default_args=default_args,
     description="DAG for daily stock and options data fetch after market close",
-    schedule_interval="56 23 * * *",
-    start_date=datetime(2025, 7, 18, tzinfo=local_tz),
+    schedule_interval="10 20 * * *",
+    start_date=datetime(2025, 7, 19, tzinfo=local_tz),
     catchup=False,
 ) as dag_daily:
     start = DummyOperator(task_id="start")
