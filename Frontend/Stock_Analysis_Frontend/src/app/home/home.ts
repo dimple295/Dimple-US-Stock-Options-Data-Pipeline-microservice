@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { StockSearchService, StockInfo } from '../services/stock-search.service';
 
 @Component({
   selector: 'app-home',
@@ -7,29 +8,47 @@ import { Router } from '@angular/router';
   templateUrl: './home.html',
   styleUrl: './home.scss'
 })
-export class Home {
+export class Home implements OnInit {
   searchQuery: string = '';
+  popularStocks: StockInfo[] = [];
   
-  popularStocks = [
-    { symbol: 'AAPL', name: 'Apple Inc.' },
-    { symbol: 'GOOGL', name: 'Alphabet Inc.' },
-    { symbol: 'MSFT', name: 'Microsoft Corporation' },
-    { symbol: 'AMZN', name: 'Amazon.com Inc.' },
-    { symbol: 'TSLA', name: 'Tesla Inc.' },
-    { symbol: 'META', name: 'Meta Platforms Inc.' },
-    { symbol: 'NVDA', name: 'NVIDIA Corporation' },
-    { symbol: 'NFLX', name: 'Netflix Inc.' }
-  ];
+  constructor(
+    private router: Router,
+    private stockSearchService: StockSearchService
+  ) {}
 
-  constructor(private router: Router) {}
+  ngOnInit() {
+    this.popularStocks = this.stockSearchService.getPopularStocks();
+  }
 
   searchStock() {
     if (this.searchQuery.trim()) {
-      // Navigate to the dashboard with the selected stock
-      this.router.navigate(['/dashboard'], { 
-        queryParams: { symbol: this.searchQuery.trim().toUpperCase() }
-      });
+      // First try to find an exact match by symbol
+      const exactMatch = this.stockSearchService.getStockBySymbol(this.searchQuery.trim());
+      
+      if (exactMatch) {
+        this.router.navigate(['/dashboard'], { 
+          queryParams: { symbol: exactMatch.symbol }
+        });
+      } else {
+        // If no exact match, search for the best match
+        const searchResults = this.stockSearchService.searchStocks(this.searchQuery.trim());
+        const symbolToUse = searchResults.length > 0 ? searchResults[0].symbol : this.searchQuery.trim().toUpperCase();
+        
+        this.router.navigate(['/dashboard'], { 
+          queryParams: { symbol: symbolToUse }
+        });
+      }
+      
+      this.clearSearch();
     }
+  }
+
+  selectPopularStock(stock: StockInfo) {
+    this.searchQuery = stock.symbol;
+    this.router.navigate(['/dashboard'], { 
+      queryParams: { symbol: stock.symbol }
+    });
   }
 
   onKeyPress(event: KeyboardEvent) {
@@ -38,8 +57,7 @@ export class Home {
     }
   }
 
-  selectPopularStock(stock: any) {
-    this.searchQuery = stock.symbol;
-    this.searchStock();
+  clearSearch() {
+    this.searchQuery = '';
   }
 }
