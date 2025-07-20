@@ -22,15 +22,28 @@
     </div>
     <div class="popular-stocks">
       <h3>Popular Stocks</h3>
-      <div class="stock-grid">
-        <button
-          *ngFor="let stock of popularStocks"
-          (click)="selectPopularStock(stock)"
+      
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="loading-container">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Loading popular stocks...</p>
+      </div>
+      
+      <!-- Error State -->
+      <div *ngIf="error && !isLoading" class="error-message">
+        {{ error }}
+      </div>
+      
+      <!-- Popular Stocks Grid -->
+      <div *ngIf="!isLoading && !error" class="stock-grid">
+        <div 
+          *ngFor="let stock of popularStocks" 
           class="stock-button"
+          (click)="selectPopularStock(stock)"
         >
-          <span class="stock-symbol">{{ stock.symbol }}</span>
-          <span class="stock-name">{{ stock.name }}</span>
-        </button>
+          <div class="stock-symbol">{{ stock.symbol }}</div>
+          <div class="stock-name">{{ stock.name }}</div>
+        </div>
       </div>
     </div>
   </div>
