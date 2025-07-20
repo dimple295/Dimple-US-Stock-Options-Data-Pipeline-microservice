@@ -307,6 +307,14 @@ export class StockDataService {
   }
 
   /**
+   * Get options data for a specific stock symbol
+   */
+  getOptionsDataBySymbol(symbol: string): Observable<ApiResponse<OptionsDataResponse>> {
+    const params = new HttpParams().set('symbol', symbol.toUpperCase());
+    return this.http.get<ApiResponse<OptionsDataResponse>>(`${this.API_BASE_URL}/api/options-data/`, { params });
+  }
+
+  /**
    * Search for stocks and their options by stock name
    */
   searchStock(stockName: string): Observable<ApiResponse<SearchResponse>> {

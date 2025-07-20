@@ -143,6 +143,17 @@
           </div>
           <div class="options-table-placeholder" *ngIf="filteredPuts.length === 0">No put options for this expiry.</div>
         </ng-container>
+        
+        <!-- Show message when no options data is available -->
+        <div class="no-options-message" *ngIf="optionsData.length === 0 && !isLoading">
+          <p>No options data available for {{ selectedStock }}.</p>
+          <p>This could be because:</p>
+          <ul>
+            <li>Options data hasn't been collected yet</li>
+            <li>The stock symbol doesn't have options trading</li>
+            <li>There's a connection issue with the data source</li>
+          </ul>
+        </div>
         <ng-container *ngIf="optionViewType === 'Straddle'">
           <div class="straddle-tables">
             <div class="straddle-table-block">
