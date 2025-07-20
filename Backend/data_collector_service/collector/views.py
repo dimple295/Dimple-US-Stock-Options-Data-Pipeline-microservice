@@ -24,7 +24,7 @@ def fetch_option_data(request):
     Fetches options data for multiple symbols (in batches of 8) from Yahoo Finance.
     """
     today = datetime.now().date()
-    start_date = datetime.strptime("2025-06-16", "%Y-%m-%d").date()
+    # start_date = datetime.strptime("2025-06-16", "%Y-%m-%d").date()
     # cutoff = datetime.strptime("2025-08-16", "%Y-%m-%d").date()
     cutoff = today + timedelta(days=65)
     full_result = []
@@ -32,7 +32,7 @@ def fetch_option_data(request):
     logger.info(f"today: {today}")
     logger.info(f"cutoff: {cutoff}")
     producer = create_producer()
-    full_result = OptionDataCollector(producer, start_date, cutoff, full_result)
+    full_result = OptionDataCollector(producer, today, cutoff, full_result)
 
     return JsonResponse({
         "status": "success",
