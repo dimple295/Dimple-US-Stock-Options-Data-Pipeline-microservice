@@ -86,10 +86,48 @@ export class Dashboard implements OnInit, AfterViewInit {
       next: (response) => {
         if (response.status === 'success') {
           const allOptions = [...response.data.call_options, ...response.data.put_options];
-          this.optionsData = allOptions.filter(opt => opt.StockName === this.selectedStock);
+          
+          // Filter options for the selected stock
+          const selected = this.selectedStock.trim().toUpperCase();
+          this.optionsData = allOptions.filter(opt => {
+            const stockName = (opt.StockName || '').trim().toUpperCase();
+            const contractSymbol = (opt.contractSymbol || '').trim().toUpperCase();
+            return stockName === selected || contractSymbol.startsWith(selected);
+          });
+          
           // Extract unique expiry dates
           this.optionExpiryDates = Array.from(new Set(this.optionsData.map(opt => opt.expirationDate))).sort();
+          
           // Default to first expiry if not set
+          if (!this.selectedExpiry && this.optionExpiryDates.length > 0) {
+            this.selectedExpiry = this.optionExpiryDates[0];
+          }
+          
+          // If no options found, try to get options data specifically for this stock
+          if (this.optionsData.length === 0) {
+            this.loadOptionsDataForStock(this.selectedStock);
+          }
+        } else {
+          this.optionsData = [];
+          this.optionExpiryDates = [];
+        }
+      },
+      error: (err) => {
+        this.optionsData = [];
+        this.optionExpiryDates = [];
+      }
+    });
+  }
+
+  loadOptionsDataForStock(symbol: string) {
+    this.stockDataService.getOptionsDataBySymbol(symbol).subscribe({
+      next: (response) => {
+        if (response.status === 'success') {
+          const allOptions = [...response.data.call_options, ...response.data.put_options];
+          
+          this.optionsData = allOptions;
+          this.optionExpiryDates = Array.from(new Set(this.optionsData.map(opt => opt.expirationDate))).sort();
+          
           if (!this.selectedExpiry && this.optionExpiryDates.length > 0) {
             this.selectedExpiry = this.optionExpiryDates[0];
           }
@@ -98,7 +136,7 @@ export class Dashboard implements OnInit, AfterViewInit {
           this.optionExpiryDates = [];
         }
       },
-      error: () => {
+      error: (err) => {
         this.optionsData = [];
         this.optionExpiryDates = [];
       }
@@ -129,6 +167,7 @@ export class Dashboard implements OnInit, AfterViewInit {
 
     this.isLoading = true;
     this.error = null;
+    
     this.stockDataService.getAllStockData().subscribe({
       next: (response) => {
         if (response.status === 'success') {
@@ -142,7 +181,6 @@ export class Dashboard implements OnInit, AfterViewInit {
         this.isLoading = false;
       },
       error: (err) => {
-        console.error('Error loading stock data:', err);
         this.error =
           'Failed to connect to the API. Please check if the backend is running.';
         this.isLoading = false;
@@ -342,6 +380,23 @@ export class Dashboard implements OnInit, AfterViewInit {
   }
 
   reloadData() {
-    this.ngOnInit();
+    this.isLoading = true;
+    this.error = null;
+    this.stockDataService.getAllStockData().subscribe({
+      next: (response) => {
+        if (response.status === 'success') {
+          this.stockData = response.data.stock_data;
+          this.extractAvailableStocks();
+          this.setSelectedStockAndUpdate();
+        } else {
+          this.error = response.message || 'Failed to load stock data';
+        }
+        this.isLoading = false;
+      },
+      error: (err) => {
+        this.error = 'Failed to connect to the API. Please check if the backend is running.';
+        this.isLoading = false;
+      },
+    });
   }
 }

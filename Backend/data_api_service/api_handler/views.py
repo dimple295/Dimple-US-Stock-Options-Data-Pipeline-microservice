@@ -506,6 +506,13 @@ def connect_with_retry(max_retries=5, retry_delay=5):
             else:
                 raise
 
+def sanitize_option(option):
+    for key in ['strike', 'lastPrice', 'bid', 'ask', 'change', 'percentChange', 'impliedVolatility']:
+        value = option.get(key)
+        if value is not None and isinstance(value, float) and (math.isnan(value) or math.isinf(value)):
+            option[key] = None
+    return option
+
 class StockDataView(APIView):
     def get(self, request):
         conn = None
@@ -583,16 +590,33 @@ class OptionsDataView(APIView):
             if not cursor.fetchone()[0]:
                 raise Exception("call_options table not found")
 
-            select_put_query = """
+            # Check if symbol parameter is provided for filtering
+            symbol = request.GET.get('symbol')
+            if symbol:
+                symbol = symbol.upper()
+                logger.info(f"Filtering options data for symbol: {symbol}")
+                put_where_clause = 'WHERE "StockName" = %s'
+                call_where_clause = 'WHERE "StockName" = %s'
+                put_params = (symbol,)
+                call_params = (symbol,)
+            else:
+                put_where_clause = ''
+                call_where_clause = ''
+                put_params = ()
+                call_params = ()
+
+            select_put_query = f"""
                 SELECT "contractSymbol", "lastTradeDate", "expirationDate", "strike", "lastPrice", 
                        "bid", "ask", "change", "percentChange", "volume", "openInterest", 
                        "impliedVolatility", "inTheMoney", "contractSize", "currency", "StockName" 
                 FROM public.put_options
+                {put_where_clause}
             """
-            cursor.execute(select_put_query)
+            cursor.execute(select_put_query, put_params)
             put_options = []
             put_rows = cursor.fetchall()
-            logger.info(f"Put Data: {put_rows}")
+            logger.info(f"Found {len(put_rows)} put options records")
+            
             for row in put_rows:
                 put_option = {
                     'contractSymbol': row[0],
@@ -612,22 +636,21 @@ class OptionsDataView(APIView):
                     'currency': row[14],
                     'StockName': row[15],
                 }
-                for key in ['strike', 'lastPrice', 'bid', 'ask', 'change', 'percentChange', 'impliedVolatility']:
-                    if put_option[key] is not None and (math.isnan(put_option[key]) or math.isinf(put_option[key])):
-                        logger.warning(f"Problematic value in put_options, contractSymbol={put_option['contractSymbol']}, key={key}, value={put_option[key]}")
-                        put_option[key] = None
+                put_option = sanitize_option(put_option)
                 put_options.append(put_option)
 
-            select_call_query = """
+            select_call_query = f"""
                 SELECT "contractSymbol", "lastTradeDate", "expirationDate", "strike", "lastPrice", 
                        "bid", "ask", "change", "percentChange", "volume", "openInterest", 
                        "impliedVolatility", "inTheMoney", "contractSize", "currency", "StockName" 
                 FROM public.call_options
+                {call_where_clause}
             """
-            cursor.execute(select_call_query)
+            cursor.execute(select_call_query, call_params)
             call_options = []
             call_rows = cursor.fetchall()
-            logger.info(f"Call Data: {call_rows}")
+            logger.info(f"Found {len(call_rows)} call options records")
+            
             for row in call_rows:
                 call_option = {
                     'contractSymbol': row[0],
@@ -647,11 +670,14 @@ class OptionsDataView(APIView):
                     'currency': row[14],
                     'StockName': row[15],
                 }
-                for key in ['strike', 'lastPrice', 'bid', 'ask', 'change', 'percentChange', 'impliedVolatility']:
-                    if call_option[key] is not None and (math.isnan(call_option[key]) or math.isinf(call_option[key])):
-                        logger.warning(f"Problematic value in call_options, contractSymbol={call_option['contractSymbol']}, key={key}, value={call_option[key]}")
-                        call_option[key] = None
+                call_option = sanitize_option(call_option)
                 call_options.append(call_option)
+
+            # Log unique stock names found
+            put_stock_names = set(opt['StockName'] for opt in put_options)
+            call_stock_names = set(opt['StockName'] for opt in call_options)
+            all_stock_names = put_stock_names.union(call_stock_names)
+            logger.info(f"Unique stock names in options data: {sorted(all_stock_names)}")
 
             response_data = {
                 'status': 'success',
