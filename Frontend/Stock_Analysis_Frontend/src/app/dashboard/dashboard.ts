@@ -5,10 +5,11 @@ import {
   ElementRef,
   ViewChild,
 } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import * as Highcharts from 'highcharts/highstock';
 
 import { StockDataService } from '../services/stock-data.service';
+import { StockSearchService, StockInfo } from '../services/stock-search.service';
 import { StockData } from '../models/stock-data.interface';
 
 @Component({
@@ -31,18 +32,6 @@ export class Dashboard implements OnInit, AfterViewInit {
   searchQuery: string = '';
   private requestedSymbol: string | null = null;
   private dataLoaded = false;
-
-  // Add mapping for symbol to company name
-  popularStocks = [
-    { symbol: 'AAPL', name: 'Apple Inc.' },
-    { symbol: 'GOOGL', name: 'Alphabet Inc.' },
-    { symbol: 'MSFT', name: 'Microsoft Corporation' },
-    { symbol: 'AMZN', name: 'Amazon.com Inc.' },
-    { symbol: 'TSLA', name: 'Tesla Inc.' },
-    { symbol: 'META', name: 'Meta Platforms Inc.' },
-    { symbol: 'NVDA', name: 'NVIDIA Corporation' },
-    { symbol: 'NFLX', name: 'Netflix Inc.' }
-  ];
 
   // --- Stock summary fields ---
   get stockSummary() {
@@ -68,8 +57,8 @@ export class Dashboard implements OnInit, AfterViewInit {
   }
 
   getCompanyName(symbol: string): string {
-    const found = this.popularStocks?.find((s: {symbol: string, name: string}) => s.symbol === symbol);
-    return found ? found.name : symbol;
+    const stockInfo = this.stockSearchService.getStockBySymbol(symbol);
+    return stockInfo ? stockInfo.name : symbol;
   }
 
   getMarketCap(symbol: string): string {
@@ -124,7 +113,9 @@ export class Dashboard implements OnInit, AfterViewInit {
 
   constructor(
     private stockDataService: StockDataService,
-    private route: ActivatedRoute
+    private stockSearchService: StockSearchService,
+    private route: ActivatedRoute,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -161,11 +152,18 @@ export class Dashboard implements OnInit, AfterViewInit {
 
   setSelectedStockAndUpdate(): void {
     if (this.requestedSymbol) {
+      // First check if the symbol exists in available stocks (has data)
       if (this.availableStocks.includes(this.requestedSymbol)) {
         this.selectedStock = this.requestedSymbol;
         this.onStockChange(this.selectedStock);
       } else {
-        this.error = `Stock symbol "${this.requestedSymbol}" not found.`;
+        // If not in available stocks, check if it's a valid stock symbol
+        const stockInfo = this.stockSearchService.getStockBySymbol(this.requestedSymbol);
+        if (stockInfo) {
+          this.error = `Stock symbol "${this.requestedSymbol}" is valid but no data is available. Please try another stock.`;
+        } else {
+          this.error = `Stock symbol "${this.requestedSymbol}" not found.`;
+        }
       }
     } else {
       this.selectedStock = this.availableStocks[0] || '';
@@ -190,6 +188,16 @@ export class Dashboard implements OnInit, AfterViewInit {
     this.updateChartData();
     this.renderStockChart();
     this.loadOptionsData();
+    // Update the URL with the new stock symbol
+    this.updateUrl(selectedStock);
+  }
+
+  updateUrl(symbol: string): void {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { symbol: symbol },
+      queryParamsHandling: 'merge'
+    });
   }
 
   updateChartData(): void {
@@ -272,9 +280,34 @@ export class Dashboard implements OnInit, AfterViewInit {
 
   searchStock(): void {
     if (this.searchQuery.trim()) {
-      this.selectedStock = this.searchQuery.trim().toUpperCase();
-      this.onStockChange(this.selectedStock);
-      this.searchQuery = '';
+      // First try to find an exact match by symbol
+      const exactMatch = this.stockSearchService.getStockBySymbol(this.searchQuery.trim());
+      
+      if (exactMatch) {
+        // Check if the stock has data available
+        if (this.availableStocks.includes(exactMatch.symbol)) {
+          this.selectedStock = exactMatch.symbol;
+          this.onStockChange(this.selectedStock);
+          this.searchQuery = '';
+        } else {
+          this.error = `Stock symbol "${exactMatch.symbol}" is valid but no data is available. Please try another stock.`;
+        }
+      } else {
+        // If no exact match, search for the best match
+        const searchResults = this.stockSearchService.searchStocks(this.searchQuery.trim());
+        if (searchResults.length > 0) {
+          const bestMatch = searchResults[0];
+          if (this.availableStocks.includes(bestMatch.symbol)) {
+            this.selectedStock = bestMatch.symbol;
+            this.onStockChange(this.selectedStock);
+            this.searchQuery = '';
+          } else {
+            this.error = `Stock symbol "${bestMatch.symbol}" is valid but no data is available. Please try another stock.`;
+          }
+        } else {
+          this.error = `No stock found matching "${this.searchQuery.trim()}".`;
+        }
+      }
     }
   }
 
