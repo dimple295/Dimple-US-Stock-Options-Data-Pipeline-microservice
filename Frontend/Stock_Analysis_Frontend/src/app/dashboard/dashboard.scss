@@ -354,9 +354,70 @@
 .list-table-scroll .options-table,
 .list-table-scroll .options-table th,
 .list-table-scroll .options-table td {
-  background-color: #020117 !important;
-  color: $text-primary !important;
+  background: transparent !important;
+  color: #fff !important;
   opacity: 1 !important;
+}
+
+.list-table-scroll .options-table {
+  min-width: 1200px;
+  width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(161, 143, 255, 0.07);
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  overflow: hidden;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.list-table-scroll .options-table th,
+.list-table-scroll .options-table td {
+  padding: 0.7rem 1rem;
+  text-align: left;
+  border: none !important;
+}
+
+.list-table-scroll .options-table th {
+  background: #222 !important;
+  color: #fff !important;
+  font-size: 1rem;
+  font-weight: 700;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.list-table-scroll .options-table td {
+  color: #fff !important;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 1rem;
+}
+
+.list-table-scroll .options-table tr:last-child td {
+  border-bottom: none;
+}
+
+.list-table-scroll .options-table tbody tr:nth-child(even) {
+  background: #181a20 !important;
+}
+
+.list-table-scroll .options-table tbody tr:hover {
+  background: #232946 !important;
+  color: #ffe066 !important;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.list-table-scroll .options-table thead th:first-child {
+  border-top-left-radius: 12px;
+}
+.list-table-scroll .options-table thead th:last-child {
+  border-top-right-radius: 12px;
+}
+.list-table-scroll .options-table tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 12px;
+}
+.list-table-scroll .options-table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 12px;
 }
 
 .options-table {
