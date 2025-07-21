@@ -290,25 +290,34 @@
 
 .straddle-tables {
   display: flex;
-  gap: 2rem;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-start;
   width: 100%;
-  overflow-x: auto;
-  justify-content: flex-start;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .straddle-table-block {
   flex: 1 1 0;
-  min-width: 0; /* allows flex children to shrink */
+  min-width: 0;
+  max-width: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
 }
 
 .straddle-table-scroll {
+  width: 100%;
   overflow-x: auto;
-  min-width: 1200px;
-  max-width: 100%;
 }
+
 .straddle-table-block .options-table {
-  font-size: 0.97rem;
+  width: 100%;
+  min-width: 0;
+  table-layout: fixed;
 }
+
 .straddle-table-block .options-table th,
 .straddle-table-block .options-table td {
   padding: 0.5rem 0.7rem;
@@ -715,10 +724,13 @@
   }
 }
 
-.straddle-table-block .options-table-title {
-  text-align: center !important;
-  width: 100%;
-  display: block;
+@media (max-width: 900px) {
+  .straddle-tables {
+    flex-direction: column;
+  }
+  .straddle-table-block {
+    max-width: 100%;
+  }
 }
 
 .search-card {
@@ -901,4 +913,142 @@
 
 .no-options-message li {
   margin: 0.25rem 0;
+}
+
+.straddle-table-scroll,
+.straddle-uniform-table,
+.straddle-uniform-table th,
+.straddle-uniform-table td {
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+
+.straddle-uniform-table thead th:first-child,
+.straddle-uniform-table thead th:last-child,
+.straddle-uniform-table tbody tr:last-child td:first-child,
+.straddle-uniform-table tbody tr:last-child td:last-child {
+  border-radius: 0 !important;
+}
+
+.straddle-table-block .options-table {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(161, 143, 255, 0.07);
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  overflow: hidden;
+}
+
+.straddle-table-block .options-table th {
+  background: $divider !important;
+  color: $text-primary !important;
+  font-weight: 600;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.straddle-table-block .options-table td {
+  color: $text-primary !important;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.straddle-table-block .options-table tr:last-child td {
+  border-bottom: none;
+}
+
+.straddle-table-block .options-table tbody tr:nth-child(even) {
+  background: $divider !important;
+}
+
+.straddle-table-block .options-table tbody tr:hover {
+  background: $table-row-hover !important;
+  color: $primary !important;
+  transition: background 0.2s;
+}
+
+.straddle-table-block .options-table thead th:first-child {
+  border-top-left-radius: 12px;
+}
+.straddle-table-block .options-table thead th:last-child {
+  border-top-right-radius: 12px;
+}
+.straddle-table-block .options-table tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 12px;
+}
+.straddle-table-block .options-table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 12px;
+}
+
+.calls-table-block .options-table,
+.calls-table-block .options-table th,
+.calls-table-block .options-table td {
+  background: #0a2746 !important;
+  color: #fff !important;
+}
+
+.puts-table-block .options-table,
+.puts-table-block .options-table th,
+.puts-table-block .options-table td {
+  background: #111 !important;
+  color: #fff !important;
+}
+
+.strike-table {
+  background: #181a20 !important;
+  color: #fff !important;
+}
+.strike-table th, .strike-table td {
+  background: #181a20 !important;
+  color: #fff !important;
+  text-align: center;
+  font-weight: 600;
+}
+
+.selected-strike-row {
+  background: #343a40 !important;
+  color: #ffe066 !important;
+}
+
+.options-table th, .options-table td {
+  border: none !important;
+}
+
+.options-table th {
+  font-size: 1rem;
+  font-weight: 700;
+  background: #222 !important;
+  color: #fff !important;
+}
+
+.options-table td {
+  font-size: 1rem;
+  color: #fff !important;
+}
+
+.options-table .pos {
+  color: #1db954 !important;
+}
+.options-table .neg {
+  color: #e74c3c !important;
+}
+
+.options-table tbody tr:hover {
+  background: #232946 !important;
+  color: #ffe066 !important;
+  cursor: pointer;
+}
+
+.straddle-tables {
+  gap: 0 !important;
+}
+
+.straddle-table-block {
+  max-width: 33.33%;
+}
+
+@media (max-width: 900px) {
+  .straddle-tables {
+    flex-direction: column;
+  }
+  .straddle-table-block {
+    max-width: 100%;
+  }
 }

@@ -33,6 +33,12 @@ export class Dashboard implements OnInit, AfterViewInit {
   private requestedSymbol: string | null = null;
   private dataLoaded = false;
 
+  selectedStrike: number | null = null;
+
+  setSelectedStrike(strike: number) {
+    this.selectedStrike = strike;
+  }
+
   // --- Stock summary fields ---
   get stockSummary() {
     // Get all data for selected stock
@@ -79,6 +85,34 @@ export class Dashboard implements OnInit, AfterViewInit {
   }
   get filteredPuts() {
     return this.optionsData.filter(opt => opt.contractSymbol?.includes('P') && (!this.selectedExpiry || opt.expirationDate === this.selectedExpiry));
+  }
+
+  get sortedCalls() {
+    return this.filteredCalls.slice().sort((a, b) => a.strike - b.strike);
+  }
+  get sortedPuts() {
+    return this.filteredPuts.slice().sort((a, b) => a.strike - b.strike);
+  }
+
+  get straddleStrikes() {
+    const callStrikes = this.filteredCalls.map(opt => opt.strike);
+    const putStrikes = this.filteredPuts.map(opt => opt.strike);
+    const allStrikes = Array.from(new Set([...callStrikes, ...putStrikes]));
+    return allStrikes.sort((a, b) => a - b);
+  }
+  get straddleCallsMap() {
+    const map = new Map<number, any>();
+    for (const opt of this.filteredCalls) {
+      map.set(opt.strike, opt);
+    }
+    return map;
+  }
+  get straddlePutsMap() {
+    const map = new Map<number, any>();
+    for (const opt of this.filteredPuts) {
+      map.set(opt.strike, opt);
+    }
+    return map;
   }
 
   loadOptionsData() {

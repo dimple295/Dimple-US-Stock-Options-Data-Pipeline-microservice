@@ -156,59 +156,70 @@
         </div>
         <ng-container *ngIf="optionViewType === 'Straddle'">
           <div class="straddle-tables">
-            <div class="straddle-table-block">
-              <div class="options-table-title">Calls</div>
-              <div class="straddle-table-scroll">
-                <table class="options-table" *ngIf="filteredCalls.length > 0">
-                  <thead>
-                    <tr>
-                      <th>Last Price</th>
-                      <th>Change</th>
-                      <th>% Change</th>
-                      <th>Volume</th>
-                      <th>Open Interest</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr *ngFor="let opt of filteredCalls">
-                      <td>{{ opt.lastPrice }}</td>
-                      <td [ngClass]="{'pos': opt.change > 0, 'neg': opt.change < 0}">{{ opt.change }}</td>
-                      <td [ngClass]="{'pos': opt.percentChange > 0, 'neg': opt.percentChange < 0}">{{ opt.percentChange }}%</td>
-                      <td>{{ opt.volume }}</td>
-                      <td>{{ opt.openInterest }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <div class="options-table-placeholder" *ngIf="filteredCalls.length === 0">No call options for this expiry.</div>
-            </div>
-            <div class="straddle-table-block">
-              <div class="options-table-title">Puts</div>
-              <div class="straddle-table-scroll">
-                <table class="options-table" *ngIf="filteredPuts.length > 0">
-                  <thead>
-                    <tr>
-                      <th>Strike</th>
-                      <th>Last Price</th>
-                      <th>Change</th>
-                      <th>% Change</th>
-                      <th>Volume</th>
-                      <th>Open Interest</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr *ngFor="let opt of filteredPuts">
-                      <td>{{ opt.strike }}</td>
-                      <td>{{ opt.lastPrice }}</td>
-                      <td [ngClass]="{'pos': opt.change > 0, 'neg': opt.change < 0}">{{ opt.change }}</td>
-                      <td [ngClass]="{'pos': opt.percentChange > 0, 'neg': opt.percentChange < 0}">{{ opt.percentChange }}%</td>
-                      <td>{{ opt.volume }}</td>
-                      <td>{{ opt.openInterest }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <div class="options-table-placeholder" *ngIf="filteredPuts.length === 0">No put options for this expiry.</div>
+            <div class="straddle-table-scroll" style="width:100%">
+              <table class="options-table straddle-uniform-table" *ngIf="straddleStrikes.length > 0" style="width:100%">
+                <colgroup>
+                  <col style="width: 10%">
+                  <col style="width: 10%">
+                  <col style="width: 10%">
+                  <col style="width: 10%">
+                  <col style="width: 10%">
+                  <col style="width: 6%"> <!-- Strike -->
+                  <col style="width: 10%">
+                  <col style="width: 10%">
+                  <col style="width: 10%">
+                  <col style="width: 10%">
+                  <col style="width: 10%">
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th colspan="5" class="calls-table-block">Calls</th>
+                    <th class="strike-table"></th>
+                    <th colspan="5" class="puts-table-block">Puts</th>
+                  </tr>
+                  <tr>
+                    <th>Last Price</th>
+                    <th>Change</th>
+                    <th>% Change</th>
+                    <th>Volume</th>
+                    <th>Open Interest</th>
+                    <th class="strike-table">Strike</th>
+                    <th>Last Price</th>
+                    <th>Change</th>
+                    <th>% Change</th>
+                    <th>Volume</th>
+                    <th>Open Interest</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let strike of straddleStrikes" (click)="setSelectedStrike(strike)" [ngClass]="{'selected-strike-row': selectedStrike === strike}">
+                    <!-- Calls -->
+                    <ng-container *ngIf="straddleCallsMap.get(strike) as call; else emptyCall">
+                      <td>{{ call.lastPrice }}</td>
+                      <td [ngClass]="{'pos': call.change > 0, 'neg': call.change < 0}">{{ call.change }}</td>
+                      <td [ngClass]="{'pos': call.percentChange > 0, 'neg': call.percentChange < 0}">{{ call.percentChange }}%</td>
+                      <td>{{ call.volume }}</td>
+                      <td>{{ call.openInterest }}</td>
+                    </ng-container>
+                    <ng-template #emptyCall>
+                      <td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>
+                    </ng-template>
+                    <!-- Strike -->
+                    <td class="strike-table">{{ strike }}</td>
+                    <!-- Puts -->
+                    <ng-container *ngIf="straddlePutsMap.get(strike) as put; else emptyPut">
+                      <td>{{ put.lastPrice }}</td>
+                      <td [ngClass]="{'pos': put.change > 0, 'neg': put.change < 0}">{{ put.change }}</td>
+                      <td [ngClass]="{'pos': put.percentChange > 0, 'neg': put.percentChange < 0}">{{ put.percentChange }}%</td>
+                      <td>{{ put.volume }}</td>
+                      <td>{{ put.openInterest }}</td>
+                    </ng-container>
+                    <ng-template #emptyPut>
+                      <td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>
+                    </ng-template>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </ng-container>
