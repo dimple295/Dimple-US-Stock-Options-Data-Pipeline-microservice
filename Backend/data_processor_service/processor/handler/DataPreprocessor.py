@@ -31,7 +31,6 @@ class DataPreprocessor:
         """
         logger.info(f"Inside preprocess stock data")
         try:
-            
             # Step 1: Fix data types first
             df = self._fix_data_types(df)
 
@@ -50,6 +49,8 @@ class DataPreprocessor:
             # Convert back to the original structure
             processed_data = df.copy()
             processed_data = df.to_dict(orient='records')
+            
+            logger.info(f"value returned : {processed_data}")
             
             return processed_data
             
