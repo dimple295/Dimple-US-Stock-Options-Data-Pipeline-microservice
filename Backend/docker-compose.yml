@@ -57,15 +57,8 @@ services:
       - POSTGRES_PASSWORD=Passw0rd!
       - POSTGRES_DB=us_stock_options_db
     ports:
-      - "5432:5432"
-    # volumes:
-    #   - postgres_data:/var/lib/postgresql/data
-    #   - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
-    #   - ./postgres-backups:/var/backups
-    #   - ./postgres-entrypoint.sh:/postgres-entrypoint.sh
-    #   - ./backup-db.sh:/backup-db.sh
-    #   - ./backup-cron:/etc/cron.d/backup-cron
-    # entrypoint: ["/bin/bash", "/postgres-entrypoint.sh"]
+      - "5433:5433"
+    # sn/bash", "/postgres-entrypoint.sh"]
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
@@ -123,6 +116,7 @@ services:
       - KAFKA_15min_TOPIC=15min-data
       - KAFKA_OPTION_TOPIC=options-data
       - KAFKA_HISTORICAL_TOPIC=historical-data
+      - KAFKA_TASK_TOPIC=task-queue
       - DJANGO_SECRET_KEY="django-insecure-k^c404!2*woj(h(+ek*e#=0sh^qrjw9y-g34m^*qy=^=!43v%^"
       - APP_DEBUG=True
     ports:
@@ -182,7 +176,7 @@ services:
 
     environment:
       - AZURE_SQL_CONNECTION_STRING=${AZURE_SQL_CONNECTION_STRING}
-      - POSTGRES_CONNECTION_STRING=postgresql://sa:Passw0rd!@postgres:5432/us_stock_options_db
+      - POSTGRES_CONNECTION_STRING=postgresql://sa:Passw0rd!@postgres:5433/us_stock_options_db
       - INFLUXDB_URL=https://us-east-1-1.aws.cloud2.influxdata.com
       - INFLUXDB_TOKEN=p4vPDiJyynco8tjaNhG2ch7A51SHtzN0ta3VsJ6Y1OqVyHtvuAL7K_gKOVmsYV47F_hqaNPlHKOdi6Y_C8Xjw==
       - INFLUXDB_ORG=US_Stock_Data
@@ -294,7 +288,7 @@ services:
         echo 'Waiting for Kafka to be ready...'
         sleep 5
       done
-
+      kafka-topics --create --topic task-queue                     --bootstrap-server kafka:9092 --replication-factor 1 --partitions 1 
       kafka-topics --create --topic daily-data                     --bootstrap-server kafka:9092 --replication-factor 1 --partitions 5
       kafka-topics --create --topic 15min-data                     --bootstrap-server kafka:9092 --replication-factor 1 --partitions 5
       kafka-topics --create --topic options-data                   --bootstrap-server kafka:9092 --replication-factor 1 --partitions 5
