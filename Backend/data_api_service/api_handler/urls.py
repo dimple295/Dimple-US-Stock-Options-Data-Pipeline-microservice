@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import StockDataView, OptionsDataView, SearchStockView, SearchStockName
+from .views import StockDataView, OptionsDataView, SearchStockView, SearchStockName, InfluxStockDataView
 
 urlpatterns = [
     path('api/stock-data/', StockDataView.as_view(), name='stock-data'),

@@ -460,14 +460,20 @@
 #                 except pyodbc.Error as e:
 #                     logger.error(f"Error closing connection: {e}")
 
+import os
 import psycopg2
 import time
 import logging
 import json
 import math
+from influxdb_client import InfluxDBClient
+from requests.exceptions import HTTPError
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
+import pandas as pd
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
@@ -512,6 +518,19 @@ def sanitize_option(option):
         if value is not None and isinstance(value, float) and (math.isnan(value) or math.isinf(value)):
             option[key] = None
     return option
+
+def influx_connString():
+    """Establishes connection to InfluxDB using environment variables with defaults."""
+    influx_url = os.getenv('INFLUXDB_URL', 'https://us-east-1-1.aws.cloud2.influxdata.com')
+    influx_token = os.getenv('INFLUXDB_TOKEN', '-p4vPDiJyynco8tjaNhG2ch7A51SHtzN0ta3VsJ6Y1OqVyHtvuAL7K_gKOVmsYV47F_hqaNPlHKOdi6Y_C8Xjw==')
+    influx_org = os.getenv('INFLUXDB_ORG', 'US_Stock_Data')
+    influx_bucket = os.getenv('INFLUXDB_BUCKET', 'fifteenmin_stockdata')
+    
+    if not all([influx_url, influx_token, influx_org, influx_bucket]):
+        raise ValueError("Missing required InfluxDB configuration: URL, token, org, or bucket")
+    
+    client = InfluxDBClient(url=influx_url, token=influx_token, org=influx_org)
+    return client, influx_bucket
 
 class StockDataView(APIView):
     def get(self, request):
@@ -716,7 +735,8 @@ class SearchStockView(APIView):
                 'status': 'error',
                 'message': 'stock_name parameter is required'
             }, status=status.HTTP_400_BAD_REQUEST)
-
+        
+        option_stock_name = stock_name[:3]
         conn = None
         cursor = None
         try:
@@ -772,8 +792,9 @@ class SearchStockView(APIView):
                         logger.warning(f"Problematic value in stock_data, symbol={stock_entry['symbol']}, key={key}, value={stock_entry[key]}")
                         stock_entry[key] = None
                 stock_data.append(stock_entry)
-
-            cursor.execute(put_query, (search_pattern,))
+            
+            option_search_pattern = f'%{option_stock_name}%'
+            cursor.execute(put_query, (option_search_pattern,))
             put_options = []
             put_rows = cursor.fetchall()
             logger.info(f"Put Data: {put_rows}")
@@ -802,7 +823,7 @@ class SearchStockView(APIView):
                         put_option[key] = None
                 put_options.append(put_option)
 
-            cursor.execute(call_query, (search_pattern,))
+            cursor.execute(call_query, (option_search_pattern,))
             call_options = []
             call_rows = cursor.fetchall()
             logger.info(f"Call Data: {call_rows}")
@@ -831,15 +852,103 @@ class SearchStockView(APIView):
                         call_option[key] = None
                 call_options.append(call_option)
 
+            influx_client, influx_bucket = None, None
+            try:
+                influx_client, influx_bucket = influx_connString()
+            except Exception as e:
+                logger.error(f"Failed to initialize InfluxDB client: {e}")
+                return Response({
+                    'status': 'error',
+                    'message': f"InfluxDB connection error: {str(e)}"
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            us_tz = ZoneInfo("UTC")  # Use UTC to match data timestamps
+            end_time = datetime.now(us_tz)
+            start_time = end_time - timedelta(days=7)
+            start_time_str = start_time.isoformat()
+            end_time_str = end_time.isoformat()
+
+            # Build InfluxDB query
+            query = f'''
+                from(bucket: "{influx_bucket}")
+                |> range(start: {start_time_str}, stop: {end_time_str})
+                |> filter(fn: (r) => r._measurement == "stock_15min")
+            '''
+            if stock_name:
+                query += f' |> filter(fn: (r) => r.StockName == "{stock_name.upper()}" or r["StockName"] == "{stock_name.upper()}")'
+            query += ' |> pivot(rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value")'
+
+            try:
+                query_api = influx_client.query_api()
+                logger.info(f"Executing InfluxDB query: {query}")
+                
+                # Debug: Check available measurements and tags
+                schema_query = f'''
+                    from(bucket: "{influx_bucket}")
+                    |> range(start: -30d)
+                    |> filter(fn: (r) => r._measurement == "stock_15min")
+                    |> keep(columns: ["_measurement", "StockName", "_field", "_time"])
+                    |> limit(n: 10)
+                '''
+                schema_tables = query_api.query_data_frame(schema_query, org=influx_client.org)
+                logger.info(f"Schema debug result: {schema_tables}")
+
+                tables = query_api.query_data_frame(query, org=influx_client.org)
+                logger.info(f"Query result: {tables}")
+
+                influx_stock_data = []
+                if tables.empty:
+                    logger.info(f"No InfluxDB data for stock_name: {stock_name} in range {start_time_str} to {end_time_str}")
+                else:
+                    # Drop unnecessary columns
+                    tables = tables.drop(columns=[col for col in tables.columns if col.startswith('result') or col.startswith('table')], errors='ignore')
+                    # Map InfluxDB fields to match response format
+                    for _, row in tables.iterrows():
+                        stock_entry = {
+                            'symbol': row.get('StockName', ''),
+                            'date': row['_time'].strftime('%Y-%m-%d') if pd.notnull(row['_time']) else None,
+                            'open': float(row.get('open')) if pd.notnull(row.get('open')) else None,
+                            'high': float(row.get('high')) if pd.notnull(row.get('high')) else None,
+                            'low': float(row.get('low')) if pd.notnull(row.get('low')) else None,
+                            'close': float(row.get('close')) if pd.notnull(row.get('close')) else None,
+                            'volume': int(row.get('volume')) if pd.notnull(row.get('volume')) else None
+                        }
+                        for key in ['open', 'high', 'low', 'close']:
+                            if stock_entry[key] is not None and (math.isnan(stock_entry[key]) or math.isinf(stock_entry[key])):
+                                logger.warning(f"Problematic value in influx_stock_data, symbol={stock_entry['symbol']}, key={key}, value={stock_entry[key]}")
+                                stock_entry[key] = None
+                        influx_stock_data.append(stock_entry)
+
+                    available_stocknames = tables['StockName'].unique().tolist() if 'StockName' in tables.columns else []
+                    logger.info(f"Available StockNames in InfluxDB: {available_stocknames}")
+
+            except HTTPError as http_err:
+                logger.error(f"InfluxDB HTTP error: {http_err}")
+                return Response({
+                    'status': 'error',
+                    'message': f"InfluxDB query error: {str(http_err)}"
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            except Exception as e:
+                logger.error(f"InfluxDB general error: {e}")
+                return Response({
+                    'status': 'error',
+                    'message': f"InfluxDB query error: {str(e)}"
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            finally:
+                if influx_client:
+                    influx_client.close()
+
             response_data = {
                 'status': 'success',
                 'data': {
                     'stock_data': stock_data,
                     'put_options': put_options,
                     'call_options': call_options,
+                    'realtime_data': influx_stock_data,
                     'total_stock_rows': len(stock_data),
                     'total_put_rows': len(put_options),
-                    'total_call_rows': len(call_options)
+                    'total_call_rows': len(call_options),
+                    'total_realtime_rows': len(influx_stock_data)
                 }
             }
             return Response(response_data, status=status.HTTP_200_OK, content_type='application/json')
@@ -861,6 +970,7 @@ class SearchStockView(APIView):
                 cursor.close()
             if conn:
                 conn.close()
+
 
 class SearchStockName(APIView):
     def get(self, request):
