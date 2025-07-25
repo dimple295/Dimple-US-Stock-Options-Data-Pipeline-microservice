@@ -170,7 +170,7 @@ with DAG(
     "fetch_historical_data",
     default_args=default_args,
     description="DAG to fetch historical stock data once",
-    schedule_interval="10 20 * * *",
+    schedule="@once",
     start_date=datetime(2025, 7, 19, tzinfo=local_tz),
     catchup=False,
 ) as dag_historical:
@@ -182,7 +182,7 @@ with DAG(
     "fetch_stock_daily",
     default_args=default_args,
     description="DAG for daily stock and options data fetch after market close",
-    schedule_interval="10 20 * * *",
+    schedule_interval="30 17 * * 1-5",
     start_date=datetime(2025, 7, 19, tzinfo=local_tz),
     catchup=False,
 ) as dag_daily:

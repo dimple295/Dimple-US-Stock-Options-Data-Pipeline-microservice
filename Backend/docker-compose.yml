@@ -57,7 +57,7 @@ services:
       - POSTGRES_PASSWORD=Passw0rd!
       - POSTGRES_DB=us_stock_options_db
     ports:
-      - "5433:5433"
+      - "5432:5432"
     # sn/bash", "/postgres-entrypoint.sh"]
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -103,11 +103,16 @@ services:
     image: data-collector:latest
 
     environment:
-      - TWELVE_DATA_API_1=889ef64f57ef4abea88ae2e0bbbe3537
-      - TWELVE_DATA_API_2=e4070b64b1aa414db52a8350e38b0367
-      - TWELVE_DATA_API_3=200f5a7b095d40ab84753210bc4a95fa
-      - TWELVE_DATA_API_4=99af927d7def48d3b37a8ee98b7e090b
-      - TWELVE_DATA_API_5=8c0c5c94152c4353a2c3afe5704ea840
+      # - TWELVE_DATA_API_1=889ef64f57ef4abea88ae2e0bbbe3537
+      # - TWELVE_DATA_API_2=e4070b64b1aa414db52a8350e38b0367
+      # - TWELVE_DATA_API_3=200f5a7b095d40ab84753210bc4a95fa
+      # - TWELVE_DATA_API_4=99af927d7def48d3b37a8ee98b7e090b
+      # - TWELVE_DATA_API_5=8c0c5c94152c4353a2c3afe5704ea840
+      - TWELVE_DATA_API_1=f4de2d1297354c6b81a4b0d017fc6d06
+      - TWELVE_DATA_API_2=62e7d72673964d799b868de8a9e7283b
+      - TWELVE_DATA_API_3=ab27dda112bd4fac8721226498d8d59a
+      - TWELVE_DATA_API_4=403631c4756e4d00b52455514acd8124
+      - TWELVE_DATA_API_5=ece1bbcef7a341beb1629adabc723fdd
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - KAFKA_TRIGGER_DAILY=fetch-trigger-daily
       - KAFKA_TRIGGER_15MIN=fetch-trigger-15min
@@ -176,7 +181,7 @@ services:
 
     environment:
       - AZURE_SQL_CONNECTION_STRING=${AZURE_SQL_CONNECTION_STRING}
-      - POSTGRES_CONNECTION_STRING=postgresql://sa:Passw0rd!@postgres:5433/us_stock_options_db
+      - POSTGRES_CONNECTION_STRING=postgresql://sa:Passw0rd!@postgres:5432/us_stock_options_db
       - INFLUXDB_URL=https://us-east-1-1.aws.cloud2.influxdata.com
       - INFLUXDB_TOKEN=p4vPDiJyynco8tjaNhG2ch7A51SHtzN0ta3VsJ6Y1OqVyHtvuAL7K_gKOVmsYV47F_hqaNPlHKOdi6Y_C8Xjw==
       - INFLUXDB_ORG=US_Stock_Data

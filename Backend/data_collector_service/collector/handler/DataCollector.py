@@ -85,29 +85,38 @@ class ThreadedDataCollector:
         batch_results = []
         params_base = {}
         kafka_topic = ""
-        sleep_time = 10
+        sleep_time = 70
+        us_tz = ZoneInfo("America/New_York")
 
         if self.trigger_type == 'daily':
             params_base = {
                 "interval": "1day",
-                "start_date": (datetime.now(ZoneInfo("UTC")).date() - timedelta(days=1)).strftime('%Y-%m-%d'),
-                "end_date": datetime.now(ZoneInfo("UTC")).date().strftime('%Y-%m-%d'),
+                "start_date": (datetime.now(us_tz).date() - timedelta(days=1)).strftime('%Y-%m-%d'),
+                "end_date": datetime.now(us_tz).date().strftime('%Y-%m-%d'),
                 "outputsize": 1
             }
             kafka_topic = settings.KAFKA_TOPICS['daily']
+        # elif self.trigger_type == '15min':
+        #     params_base = {
+        #         "interval": "1min",
+        #         "start_date": (datetime.now(ZoneInfo("UTC")) - timedelta(minutes=15)).strftime('%Y-%m-%d %H:%M:%S'),
+        #         "end_date": datetime.now(ZoneInfo("UTC")).strftime('%Y-%m-%d %H:%M:%S'),
+        #         "outputsize": 15
+        #     }
+        #     kafka_topic = settings.KAFKA_TOPICS['15min']
         elif self.trigger_type == '15min':
             params_base = {
                 "interval": "1min",
-                "start_date": (datetime.now(ZoneInfo("UTC")) - timedelta(minutes=15)).strftime('%Y-%m-%d %H:%M:%S'),
-                "end_date": datetime.now(ZoneInfo("UTC")).strftime('%Y-%m-%d %H:%M:%S'),
+                "start_date": (datetime.now(us_tz) - timedelta(minutes=15)).strftime('%Y-%m-%d %H:%M:%S'),
+                "end_date": datetime.now(us_tz).strftime('%Y-%m-%d %H:%M:%S'),
                 "outputsize": 15
             }
             kafka_topic = settings.KAFKA_TOPICS['15min']
         elif self.trigger_type == 'historical':
             params_base = {
                 "interval": "1day",
-                "start_date": (datetime.now(ZoneInfo("UTC")).date() - timedelta(days=3650)).strftime('%Y-%m-%d'),
-                "end_date": datetime.now(ZoneInfo("UTC")).date().strftime('%Y-%m-%d'),
+                "start_date": (datetime.now(us_tz).date() - timedelta(days=3650)).strftime('%Y-%m-%d'),
+                "end_date": datetime.now(us_tz).date().strftime('%Y-%m-%d'),
                 "outputsize": 5000
             }
             kafka_topic = settings.KAFKA_TOPICS['historical']
