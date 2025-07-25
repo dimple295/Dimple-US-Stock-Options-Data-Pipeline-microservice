@@ -971,6 +971,99 @@ class SearchStockView(APIView):
             if conn:
                 conn.close()
 
+class InfluxStockDataView(APIView):
+    def get(self, request):
+        stock_name = request.query_params.get('stock_name', '')
+        influx_client, influx_bucket = None, None
+        try:
+            influx_client, influx_bucket = influx_connString()
+        except Exception as e:
+            logger.error(f"Failed to initialize InfluxDB client: {e}")
+            return Response({
+                'status': 'error',
+                'message': f"InfluxDB connection error: {str(e)}"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        try:
+            us_tz = ZoneInfo("UTC")
+            end_time = datetime.now(us_tz)
+            start_time = end_time - timedelta(days=7)
+            start_time_str = start_time.isoformat()
+            end_time_str = end_time.isoformat()
+
+            query = f'''
+                from(bucket: "{influx_bucket}")
+                |> range(start: {start_time_str}, stop: {end_time_str})
+                |> filter(fn: (r) => r._measurement == "stock_15min")
+            '''
+            if stock_name:
+                query += f' |> filter(fn: (r) => r.StockName == "{stock_name.upper()}" or r["StockName"] == "{stock_name.upper()}")'
+            query += ' |> pivot(rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value")'
+
+            query_api = influx_client.query_api()
+            logger.info(f"Executing InfluxDB query: {query}")
+            
+            schema_query = f'''
+                from(bucket: "{influx_bucket}")
+                |> range(start: -30d)
+                |> filter(fn: (r) => r._measurement == "stock_15min")
+                |> keep(columns: ["_measurement", "StockName", "_field", "_time"])
+                |> limit(n: 10)
+            '''
+            schema_tables = query_api.query_data_frame(schema_query, org=influx_client.org)
+            logger.info(f"Schema debug result: {schema_tables}")
+
+            tables = query_api.query_data_frame(query, org=influx_client.org)
+            logger.info(f"Query result: {tables}")
+
+            influx_stock_data = []
+            if tables.empty:
+                logger.info(f"No InfluxDB data for stock_name: {stock_name} in range {start_time_str} to {end_time_str}")
+            else:
+                tables = tables.drop(columns=[col for col in tables.columns if col.startswith('result') or col.startswith('table')], errors='ignore')
+                for _, row in tables.iterrows():
+                    stock_entry = {
+                        'symbol': row.get('StockName', ''),
+                        'date': row['_time'].strftime('%Y-%m-%d') if pd.notnull(row['_time']) else None,
+                        'open': float(row.get('open')) if pd.notnull(row.get('open')) else None,
+                        'high': float(row.get('high')) if pd.notnull(row.get('high')) else None,
+                        'low': float(row.get('low')) if pd.notnull(row.get('low')) else None,
+                        'close': float(row.get('close')) if pd.notnull(row.get('close')) else None,
+                        'volume': int(row.get('volume')) if pd.notnull(row.get('volume')) else None
+                    }
+                    for key in ['open', 'high', 'low', 'close']:
+                        if stock_entry[key] is not None and (math.isnan(stock_entry[key]) or math.isinf(stock_entry[key])):
+                            logger.warning(f"Problematic value in influx_stock_data, symbol={stock_entry['symbol']}, key={key}, value={stock_entry[key]}")
+                            stock_entry[key] = None
+                    influx_stock_data.append(stock_entry)
+
+                available_stocknames = tables['StockName'].unique().tolist() if 'StockName' in tables.columns else []
+                logger.info(f"Available StockNames in InfluxDB: {available_stocknames}")
+
+            response_data = {
+                'status': 'success',
+                'data': {
+                    'realtime_data': influx_stock_data,
+                    'total_realtime_rows': len(influx_stock_data)
+                }
+            }
+            return Response(response_data, status=status.HTTP_200_OK, content_type='application/json')
+
+        except HTTPError as http_err:
+            logger.error(f"InfluxDB HTTP error: {http_err}")
+            return Response({
+                'status': 'error',
+                'message': f"InfluxDB query error: {str(http_err)}"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception as e:
+            logger.error(f"InfluxDB general error: {e}")
+            return Response({
+                'status': 'error',
+                'message': f"InfluxDB query error: {str(e)}"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        finally:
+            if influx_client:
+                influx_client.close()
 
 class SearchStockName(APIView):
     def get(self, request):
