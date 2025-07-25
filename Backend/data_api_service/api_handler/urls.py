@@ -6,4 +6,5 @@ urlpatterns = [
     path('api/options-data/', OptionsDataView.as_view(), name='options-data'),
     path('api/search/', SearchStockView.as_view(), name='search-stock'),
     path('api/stocknames/', SearchStockName.as_view(), name='stock-names'),
+    path('api/realtime-data/', InfluxStockDataView.as_view(), name='realtime-data'),
 ]
