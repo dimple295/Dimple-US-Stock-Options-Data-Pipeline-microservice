@@ -251,6 +251,10 @@ services:
       - SQL_DRIVER=ODBC Driver 18 for SQL Server
       - DJANGO_DEBUG=True
       - DJANGO_SECRET_KEY=django-insecure-k^c404!2*woj(h(+ek*e#=0sh^qrjw9y-g34m^*qy=^=!43v%^
+      - INFLUXDB_URL=https://us-east-1-1.aws.cloud2.influxdata.com
+      - INFLUXDB_TOKEN=-p4vPDiJyynco8tjaNhG2ch7A51SHtzN0ta3VsJ6Y1OqVyHtvuAL7K_gKOVmsYV47F_hqaNPlHKOdi6Y_C8Xjw==
+      - INFLUXDB_ORG=US_Stock_Data
+      - INFLUXDB_BUCKET=fifteenmin_stockdata
     ports:
       - "8006:8006"
     depends_on:
