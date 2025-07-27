@@ -13,12 +13,11 @@ helm install prometheus prometheus-community/kube-prometheus-stack \
   --set nodeExporter.service.port=9100
 
 
-
 helm install kafka bitnami/kafka \
   --set kraft.enabled=false \
   --set zookeeper.enabled=true \
-  --set zookeeper.replicaCount=1 \
-  --set broker.replicaCount=1 \
+  --set zookeeper.replicaCount=2 \
+  --set broker.replicaCount=2 \
   --set listeners.client.protocol=PLAINTEXT \
   --set listeners.client.port=9092 \
   --set autoCreateTopicsEnable=false \
@@ -27,4 +26,6 @@ helm install kafka bitnami/kafka \
 
 
 helm install nginx-ingress ingress-nginx/ingress-nginx \
-  --set controller.publishService.enabled=true
+  --set controller.service.type=LoadBalancer \
+  --set controller.publishService.enabled=true \
+  --set controller.service.externalTrafficPolicy=Local

@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - main
+      - local_db_main
   pull_request:
     branches:
       - main
+      - local_db_main
 
 jobs:
   build-and-test:
@@ -72,7 +74,7 @@ jobs:
 
   build-docker-only:
     runs-on: ubuntu-latest
-    # if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

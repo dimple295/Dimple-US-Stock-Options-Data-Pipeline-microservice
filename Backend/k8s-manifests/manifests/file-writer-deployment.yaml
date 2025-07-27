@@ -9,7 +9,7 @@ metadata:
   name: file-writer
   # namespace: stock-pipeline
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       io.kompose.service: file-writer

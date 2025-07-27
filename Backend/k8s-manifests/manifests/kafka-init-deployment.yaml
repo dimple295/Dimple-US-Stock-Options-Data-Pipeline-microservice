@@ -9,7 +9,7 @@ metadata:
   name: kafka-init
   # namespace: stock-pipeline
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       io.kompose.service: kafka-init
@@ -56,4 +56,4 @@ spec:
             - -c
           image: confluentinc/cp-kafka:7.4.0
           name: kafka-init
-      restartPolicy: Always
+      # restartPolicy: Always
