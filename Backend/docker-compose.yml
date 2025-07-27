@@ -229,7 +229,7 @@ services:
       - "8003:8003"
     depends_on:
       postgres:
-        condition: service_healthy # <--- This waits for the healthcheck to pass!
+        condition: service_healthy
     networks:
       - stock_pipeline
 
@@ -263,6 +263,37 @@ services:
     networks:
       - stock_pipeline
     restart: unless-stopped
+
+  prediction-service:
+    build:
+      context: ./prediction_service
+      dockerfile: Dockerfile
+    image: prediction-service:latest
+    environment:
+      - DATA_API_URL=http://data_api_service:8006/api/realtime-data/
+      # - POSTGRES_CONNECTION_STRING=postgresql://sa:Passw0rd!@postgres:5432/us_stock_options_db
+      - MODEL_PATH=/app/models/transformer_lstm.pth
+      - SCALER_PATH=/app/models/scaler.npy
+    ports:
+      - "8007:8007"
+    volumes:
+      - ./models:/app/models
+      - ./data: /app/data
+    depends_on:
+      data-api-service:
+        condition: service_started
+      # postgres:
+      #   condition: service_healthy
+    networks:
+      - stock_pipeline
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 8G
+        reservations:
+          cpus: '1.0'
+          memory: 4G
 
 
   kafka:
@@ -382,6 +413,8 @@ volumes:
   postgres_data:
   postgres_backups:
   pgadmin_data:
+  models:
+  data:
 
 networks:
   stock_pipeline:
