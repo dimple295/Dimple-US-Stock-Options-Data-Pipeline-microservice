@@ -9,7 +9,7 @@ metadata:
   name: data-processor
   # namespace: stock-pipeline
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       io.kompose.service: data-processor
