@@ -101,10 +101,11 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+          
 
       - name: Build and push Docker images
         run: |
-          for service in airflow_scheduler_service data_api_service data_collector_service data_processor_service database_writer_service file_writer_service; do
+          for service in  data_api_service data_collector_service data_processor_service database_writer_service file_writer_service; do
             echo "Building Docker image for $service"
             ls -la Backend/$service
             docker buildx build --platform linux/amd64 -t ${{ secrets.DOCKERHUB_USERNAME }}/$service:latest --push .
