@@ -16,7 +16,7 @@ for service in "${services[@]}"; do
   echo "📦 Building and pushing: $service"
   docker buildx build \
     --platform linux/amd64 \
-    -t hdm08/backend-${service//_/-} \
+    -t hdm08/${service} \
     --push \
     "${BASE_PATH}${service}"
 done
