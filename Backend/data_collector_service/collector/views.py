@@ -81,7 +81,7 @@ def fetch_data(request, trigger_type):
             "trigger_type": trigger_type,
             "trigger_time": trigger_time
         }
-        kafka_topic = settings.KAFKA_TOPICS['task_queue']  # New topic for task queuing
+        kafka_topic = settings.KAFKA_TOPICS['task_queue']  
         producer.produce(kafka_topic, value=json.dumps(task_message).encode('utf-8'))
         producer.flush(timeout=10)
 
@@ -117,7 +117,7 @@ def fetch_option_data(request):
     """
     today = datetime.now().date()
     # start_date = datetime.strptime("2025-06-16", "%Y-%m-%d").date()
-    cutoff = today + timedelta(days=65)
+    cutoff = today + timedelta(days=90)
     full_result = []
 
     logger.info(f"today: {today}")

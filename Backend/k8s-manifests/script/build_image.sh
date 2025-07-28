@@ -2,6 +2,7 @@
 
 # Base path to the directory where all service folders are
 BASE_PATH="../../"
+DOCKER_HUB_USERNAME = "hdm08"
 
 services=(
   "airflow_scheduler_service"
@@ -16,7 +17,7 @@ for service in "${services[@]}"; do
   echo "📦 Building and pushing: $service"
   docker buildx build \
     --platform linux/amd64 \
-    -t hdm08/${service} \
+    -t ${DOCKER_HUB_USERNAME}/${service} \
     --push \
     "${BASE_PATH}${service}"
 done
