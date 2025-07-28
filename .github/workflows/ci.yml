@@ -74,12 +74,15 @@ jobs:
 
   build-docker-only:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+    if: >
+      (github.event_name == 'push' &&
+       (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/local_db_main')) ||
+      (github.event_name == 'pull_request' &&
+       github.event.pull_request.merged == true &&
+       github.event.pull_request.base.ref == 'local_db_main')
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          ref: local_db_main
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -101,16 +104,16 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-          
 
       - name: Build and push Docker images
         run: |
-          for service in  data_api_service data_collector_service data_processor_service database_writer_service file_writer_service; do
+          for service in data_api_service data_collector_service data_processor_service database_writer_service file_writer_service; do
             echo "Building Docker image for $service"
-            ls -la Backend/$service
-            docker buildx build --platform linux/amd64 -t ${{ secrets.DOCKERHUB_USERNAME }}/$service:latest --push .
-            echo "Pushing Docker image for $service"
-            docker push ${{ secrets.DOCKERHUB_USERNAME }}/$service:latest
+            docker buildx build \
+              --platform linux/amd64 \
+              -t ${{ secrets.DOCKERHUB_USERNAME }}/$service:latest \
+              --push \
+              ./Backend/$service
           done
 
       - name: Show free memory and disk after build
