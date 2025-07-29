@@ -278,7 +278,7 @@ services:
       - "8007:8007"
     volumes:
       - ./models:/app/models
-      - ./data: /app/data
+      - ./data:/app/data
     depends_on:
       data-api-service:
         condition: service_started
