@@ -20,6 +20,7 @@ RUN git clone https://github.com/TA-Lib/ta-lib.git \
     && rm -rf ta-lib
 
 RUN ldconfig
+
 ENV LD_LIBRARY_PATH=/usr/lib:$LD_LIBRARY_PATH
 ENV PKG_CONFIG_PATH=/usr/lib/pkgconfig:$PKG_CONFIG_PATH
 ENV LDFLAGS=-L/usr/lib
@@ -30,7 +31,7 @@ RUN pip install --no-cache-dir numpy==1.24.4 \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY src/ ./src/
-RUN mkdir -p /app/models
-RUN python src/manage.py collectstatic --noinput
-CMD ["gunicorn", "--bind", "0.0.0.0:8007", "prediction.wsgi:application"]
+COPY . .
+RUN mkdir -p /app/models /app/data
+RUN python manage.py collectstatic --noinput
+CMD ["gunicorn", "--bind", "0.0.0.0:8007", "prediction_service.wsgi:application"]
