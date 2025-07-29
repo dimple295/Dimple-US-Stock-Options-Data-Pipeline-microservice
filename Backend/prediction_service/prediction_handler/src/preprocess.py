@@ -154,5 +154,3 @@ def preprocess_inference_data(df, symbols, scaler, seq_length=120, is_1min=True)
     except Exception as e:
         logging.error(f"Error in inference preprocessing: {str(e)}")
         raise
-
-
