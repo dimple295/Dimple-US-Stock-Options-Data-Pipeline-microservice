@@ -1,6 +1,8 @@
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repografana.enabledtps://charts.bitnami.com/bitnami
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+
+helm repo add grafana https://grafana.github.io/helm-charts
 
 helm repo update
 
@@ -29,3 +31,9 @@ helm install nginx-ingress ingress-nginx/ingress-nginx \
   --set controller.service.type=LoadBalancer \
   --set controller.publishService.enabled=true \
   --set controller.service.externalTrafficPolicy=Local
+
+
+
+helm install loki-stack grafana/loki-stack \
+  --set promtail.enabled=true \
+  --set grafana.enabled=true \
