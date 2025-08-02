@@ -23,8 +23,8 @@ spec:
       labels:
         io.kompose.service: file-writer
     spec:
-      # imagePullSecrets:
-      #   - name: dockerhub-secret
+      imagePullSecrets:
+        - name: dockerhub-secret
       containers:
         - env:
             - name: AWS_ACCESS_KEY_ID

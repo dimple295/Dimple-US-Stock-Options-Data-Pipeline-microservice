@@ -21,8 +21,8 @@ spec:
       labels:
         io.kompose.service: data-collector
     spec:
-      # imagePullSecrets:
-      #   - name: dockerhub-secret
+      imagePullSecrets:
+        - name: dockerhub-secret
       containers:
         - env:
             - name: APP_DEBUG
@@ -32,7 +32,9 @@ spec:
             - name: KAFKA_15min_TOPIC
               value: 15min-data
             - name: KAFKA_BOOTSTRAP_SERVERS
-              value: kafka:9092
+              value: kafka.stock-pipeline.svc.cluster.local:9092
+            - name: KAFKA_TASK_TOPIC
+              value: task-queue
             - name: KAFKA_DAILY_TOPIC
               value: daily-data
             - name: KAFKA_HISTORICAL_TOPIC
@@ -46,15 +48,15 @@ spec:
             - name: KAFKA_TRIGGER_HISTORICAL
               value: fetch-trigger-historical
             - name: TWELVE_DATA_API_1
-              value: <enter_api_key1_here>
+              value: f4de2d1297354c6b81a4b0d017fc6d06
             - name: TWELVE_DATA_API_2
-              value: <enter_api_key2_here>
+              value: 62e7d72673964d799b868de8a9e7283b
             - name: TWELVE_DATA_API_3
-              value: <enter_api_key3_here>
+              value: ab27dda112bd4fac8721226498d8d59a
             - name: TWELVE_DATA_API_4
-              value: <enter_api_key4_here>
+              value: 403631c4756e4d00b52455514acd8124
             - name: TWELVE_DATA_API_5
-              value: <enter_api_key5_here>
+              value: ece1bbcef7a341beb1629adabc723fdd
           image: hdm08/data_collector_service:latest
           name: data-collector
           imagePullPolicy: IfNotPresent

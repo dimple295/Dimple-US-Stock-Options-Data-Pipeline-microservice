@@ -1,0 +1,72 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              value: "sa"
+            - name: POSTGRES_PASSWORD
+              value: "Passw0rd!"
+            - name: POSTGRES_DB
+              value: "us_stock_options_db"
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+            - name: init-db
+              mountPath: /docker-entrypoint-initdb.d/init-db.sql
+              subPath: init-db.sql
+            - name: entrypoint-script
+              mountPath: /usr/local/bin/postgres-entrypoint.sh
+              subPath: postgres-entrypoint.sh
+            - name: backups
+              mountPath: /var/backups
+          command: ["/usr/local/bin/postgres-entrypoint.sh"]
+          readinessProbe:
+            exec:
+              command:
+                ["pg_isready", "-U", "sa", "-d", "us_stock_options_db"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 10
+      volumes:
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: postgres-pvc
+        - name: init-db
+          configMap:
+            name: postgres-initdb-config
+        - name: entrypoint-script
+          configMap:
+            name: postgres-entrypoint-script
+        - name: backups
+          hostPath:
+            path: /path/to/local/backups  # Change this as per your node's path
+            type: Directory
