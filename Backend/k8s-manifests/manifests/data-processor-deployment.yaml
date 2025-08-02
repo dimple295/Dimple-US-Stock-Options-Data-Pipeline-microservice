@@ -21,20 +21,20 @@ spec:
       labels:
         io.kompose.service: data-processor
     spec:
-      # imagePullSecrets:
-      #   - name: dockerhub-secret
+      imagePullSecrets:
+        - name: dockerhub-secret
       containers:
         - env:
             - name: APP_DEBUG
               value: "True"
             - name: DJANGO_SECRET_KEY
               value: django-insecure-#2k^ti5^bcw_ce5-73!ce&w6ywg)6(_9gpceh+%!nqa^yp1=r6
-            - name: KAFKA_15min_TOPIC
-              value: 15min-data
             - name: KAFKA_BOOTSTRAP_SERVERS
-              value: kafka:9092
+              value: kafka.stock-pipeline.svc.cluster.local:9092
             - name: KAFKA_DAILY_TOPIC
               value: daily-data
+            - name: KAFKA_15min_TOPIC
+              value: 15min-data
             - name: KAFKA_HISTORICAL_TOPIC
               value: historical-data
             - name: KAFKA_OPTION_TOPIC
@@ -43,14 +43,6 @@ spec:
               value: processed-15min-data
             - name: KAFKA_PROCESSED_DAILY
               value: processed-daily-data
-            - name: KAFKA_PROCESSED_FILE_15MIN
-              value: processed-file-15min-data
-            - name: KAFKA_PROCESSED_FILE_DAILY
-              value: processed-file-daily-data
-            - name: KAFKA_PROCESSED_FILE_HISTORICAL
-              value: processed-file-historical-data
-            - name: KAFKA_PROCESSED_FILE_OPTIONS
-              value: processed-file-options-data
             - name: KAFKA_PROCESSED_HISTORICAL
               value: processed-historical-data
             - name: KAFKA_PROCESSED_OPTIONS

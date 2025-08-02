@@ -23,8 +23,8 @@ spec:
       labels:
         io.kompose.service: airflow
     spec:
-      # imagePullSecrets:
-      #   - name: dockerhub-secret
+      imagePullSecrets:
+      - name: dockerhub-secret
       containers:
         - command:
             - /entrypoint.sh

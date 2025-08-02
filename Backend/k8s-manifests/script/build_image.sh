@@ -2,7 +2,7 @@
 
 # Base path to the directory where all service folders are
 BASE_PATH="../../"
-DOCKER_HUB_USERNAME = "hdm08"
+DOCKER_HUB_USERNAME="hdm08"
 
 services=(
   "airflow_scheduler_service"

@@ -21,8 +21,8 @@ spec:
       labels:
         io.kompose.service: database-writer
     spec:
-      # imagePullSecrets:
-      #   - name: dockerhub-secret
+      imagePullSecrets:
+        - name: dockerhub-secret
       containers:
         - env:
             - name: APP_DEBUG
@@ -40,7 +40,7 @@ spec:
             - name: INFLUXDB_URL
               value: https://us-east-1-1.aws.cloud2.influxdata.com
             - name: KAFKA_BOOTSTRAP_SERVERS
-              value: kafka:9092
+              value: kafka.stock-pipeline.svc.cluster.local:9092
             - name: KAFKA_PROCESSED_15MIN
               value: processed-15min-data
             - name: KAFKA_PROCESSED_DAILY

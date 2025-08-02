@@ -26,14 +26,11 @@ helm install kafka bitnami/kafka \
   --set controller.replicaCount=0 \
   --version 26.9.0
 
-
 helm install nginx-ingress ingress-nginx/ingress-nginx \
   --set controller.service.type=LoadBalancer \
   --set controller.publishService.enabled=true \
   --set controller.service.externalTrafficPolicy=Local
 
-
-
 helm install loki-stack grafana/loki-stack \
   --set promtail.enabled=true \
-  --set grafana.enabled=true \
+  --set grafana.enabled=true 
