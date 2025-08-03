@@ -309,11 +309,11 @@ export class Dashboard implements OnInit, AfterViewInit {
     
     this.stockDataService.getRealtimeData(this.selectedStock).subscribe({
       next: (response) => {
-        if (response.status === 'success' && response.data.stock_data) {
+        if (response.status === 'success' && response.data.realtime_data) {
           // Get the most recent data for the selected stock
-          const stockDataForSymbol = response.data.stock_data
-            .filter(item => item.symbol === this.selectedStock)
-            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+          const stockDataForSymbol = response.data.realtime_data
+            .filter((item: any) => item.symbol === this.selectedStock)
+            .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
           
           if (stockDataForSymbol.length > 0) {
             // Get the latest day's data
