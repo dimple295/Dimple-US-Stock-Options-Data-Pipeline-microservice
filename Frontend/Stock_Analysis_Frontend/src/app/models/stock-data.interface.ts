@@ -47,9 +47,11 @@ export interface SearchResponse {
   stock_data: StockData[];
   put_options: OptionData[];
   call_options: OptionData[];
+  realtime_data: StockData[];
   total_stock_rows: number;
   total_put_rows: number;
   total_call_rows: number;
+  total_realtime_rows: number;
 }
 
 export interface StockNamesResponse {
