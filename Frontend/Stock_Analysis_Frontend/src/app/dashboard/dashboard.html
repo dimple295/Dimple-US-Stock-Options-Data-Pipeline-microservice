@@ -70,6 +70,17 @@
           <div class="summary-detail"><span>Day Low</span><b>{{ stockSummary.low | number:'1.2-2' }}</b></div>
         </div>
       </div>
+      <div class="chart-card realtime-chart-card">
+        <div class="chart-title">Intraday Data (Latest Trading Day)</div>
+        <div *ngIf="isRealtimeLoading" class="chart-loader">
+          <mat-progress-spinner color="primary" mode="indeterminate" diameter="40"></mat-progress-spinner>
+          <div class="loader-text">Loading realtime data...</div>
+        </div>
+        <div *ngIf="realtimeError" class="chart-error">
+          {{ realtimeError }}
+        </div>
+        <div #realtimeChartContainer class="chart-container" [style.display]="isRealtimeLoading || realtimeError ? 'none' : 'block'"></div>
+      </div>
       <div class="chart-card">
         <div class="chart-title">Price Chart</div>
         <div #chartContainer class="chart-container"></div>

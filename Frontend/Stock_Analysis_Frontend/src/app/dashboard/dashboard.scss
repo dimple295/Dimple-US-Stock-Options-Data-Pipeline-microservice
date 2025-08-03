@@ -56,9 +56,38 @@
   margin-bottom: 1.5rem;
 }
 
+.realtime-chart-card {
+  margin-bottom: 1.5rem;
+}
+
 .options-card {
   margin-bottom: 0;
   padding: 40px !important;
+}
+
+.chart-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  color: $text-primary;
+}
+
+.chart-loader .loader-text {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: $text-secondary;
+}
+
+.chart-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  color: #ff6b6b;
+  font-size: 0.9rem;
+  text-align: center;
 }
 
 .dashboard-title,
@@ -629,6 +658,7 @@
 .dashboard-card,
 .summary-card,
 .chart-card,
+.realtime-chart-card,
 .options-card {
   border-radius: 16px;
 }
@@ -656,7 +686,8 @@
 }
 
 .summary-card,
-.chart-card {
+.chart-card,
+.realtime-chart-card {
   width: 50%;
   min-width: 320px;
   max-width: 700px;
@@ -668,7 +699,8 @@
     gap: 1.2rem;
   }
   .summary-card,
-  .chart-card {
+  .chart-card,
+  .realtime-chart-card {
     width: 100%;
     max-width: 100vw;
   }
@@ -678,6 +710,7 @@
   .dashboard-card,
   .summary-card,
   .chart-card,
+  .realtime-chart-card,
   .options-card {
     padding: 2rem 1.2rem 1.5rem 1.2rem;
     max-width: 100%;
@@ -706,12 +739,14 @@
   }
   .dashboard-summary-container,
   .chart-card,
+  .realtime-chart-card,
   .options-card {
     width: 98%;
     max-width: 100vw;
   }
   .summary-card,
   .chart-card,
+  .realtime-chart-card,
   .options-card {
     width: 99vw !important;
     max-width: 100vw !important;
@@ -727,6 +762,7 @@
   .dashboard-card,
   .summary-card,
   .chart-card,
+  .realtime-chart-card,
   .options-card {
     padding: 1rem 0.3rem 1rem 0.3rem;
     border-radius: 10px;
@@ -772,12 +808,14 @@
   }
   .dashboard-summary-container,
   .chart-card,
+  .realtime-chart-card,
   .options-card {
     width: 100%;
     max-width: 100vw;
   }
   .summary-card,
   .chart-card,
+  .realtime-chart-card,
   .options-card {
     width: 100vw !important;
     max-width: 100vw !important;

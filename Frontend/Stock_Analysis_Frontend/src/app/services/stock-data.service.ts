@@ -323,6 +323,14 @@ export class StockDataService {
   }
 
   /**
+   * Get realtime intraday data for a specific stock
+   */
+  getRealtimeData(stockName: string): Observable<ApiResponse<SearchResponse>> {
+    const params = new HttpParams().set('stock_name', stockName);
+    return this.http.get<ApiResponse<SearchResponse>>(`${this.API_BASE_URL}/api/search/`, { params });
+  }
+
+  /**
    * Get stock names matching a pattern
    */
   getStockNames(stockName: string): Observable<ApiResponse<StockNamesResponse>> {

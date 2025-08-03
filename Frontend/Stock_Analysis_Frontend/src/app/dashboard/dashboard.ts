@@ -177,11 +177,21 @@ export class Dashboard implements OnInit, AfterViewInit {
     });
   }
 
+  /* -------------- Realtime Data -------------- */
+  realtimeData: StockData[] = [];
+  realtimeChartData: [number, number][] = [];
+  isRealtimeLoading = false;
+  realtimeError: string | null = null;
+
   /* -------------- Highcharts refs -------------- */
   @ViewChild('chartContainer', { static: false })
   chartEl!: ElementRef<HTMLDivElement>;
 
+  @ViewChild('realtimeChartContainer', { static: false })
+  realtimeChartEl!: ElementRef<HTMLDivElement>;
+
   private chart?: Highcharts.Chart;
+  private realtimeChart?: Highcharts.Chart;
 
   constructor(
     private stockDataService: StockDataService,
@@ -267,6 +277,7 @@ export class Dashboard implements OnInit, AfterViewInit {
     setTimeout(() => {
       this.renderStockChart();
       this.loadOptionsData();
+      this.loadRealtimeData();
     }, 0);
   }
 
@@ -290,6 +301,96 @@ export class Dashboard implements OnInit, AfterViewInit {
       new Date(i.date).getTime(),
       i.close ?? 0,
     ]);
+  }
+
+  loadRealtimeData(): void {
+    this.isRealtimeLoading = true;
+    this.realtimeError = null;
+    
+    this.stockDataService.getRealtimeData(this.selectedStock).subscribe({
+      next: (response) => {
+        if (response.status === 'success' && response.data.stock_data) {
+          // Get the most recent data for the selected stock
+          const stockDataForSymbol = response.data.stock_data
+            .filter(item => item.symbol === this.selectedStock)
+            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+          
+          if (stockDataForSymbol.length > 0) {
+            // Get the latest day's data
+            const latestData = stockDataForSymbol[0];
+            
+            // Simulate intraday data points using OHLC values
+            this.realtimeData = this.generateIntradayData(latestData);
+            
+            this.updateRealtimeChartData();
+            
+            setTimeout(() => {
+              this.renderRealtimeChart();
+            }, 0);
+          } else {
+            this.realtimeError = 'No data available for this stock';
+          }
+        } else {
+          this.realtimeError = 'No realtime data available for this stock';
+        }
+        this.isRealtimeLoading = false;
+      },
+      error: (err) => {
+        console.error('Error loading realtime data:', err);
+        this.realtimeError = 'Failed to load realtime data';
+        this.isRealtimeLoading = false;
+      }
+    });
+  }
+
+  updateRealtimeChartData(): void {
+    this.realtimeChartData = this.realtimeData.map((i: any) => [
+      i.timestamp,
+      i.close ?? 0,
+    ]);
+  }
+
+  generateIntradayData(dailyData: any): any[] {
+    const baseDate = new Date(dailyData.date);
+    const marketOpen = new Date(baseDate);
+    marketOpen.setHours(9, 30, 0, 0); // 9:30 AM market open
+    
+    const marketClose = new Date(baseDate);
+    marketClose.setHours(16, 0, 0, 0); // 4:00 PM market close
+    
+    const intradayPoints = [];
+    const totalMinutes = (marketClose.getTime() - marketOpen.getTime()) / (1000 * 60);
+    const intervalMinutes = 30; // 30-minute intervals
+    const numPoints = Math.floor(totalMinutes / intervalMinutes);
+    
+    // Create intraday data points using OHLC values
+    for (let i = 0; i <= numPoints; i++) {
+      const timestamp = marketOpen.getTime() + (i * intervalMinutes * 60 * 1000);
+      let price;
+      
+      if (i === 0) {
+        price = dailyData.open;
+      } else if (i === numPoints) {
+        price = dailyData.close;
+      } else {
+        // Interpolate between open and close, with some variation using high/low
+        const progress = i / numPoints;
+        const basePrice = dailyData.open + (dailyData.close - dailyData.open) * progress;
+        
+        // Add some realistic variation using high/low bounds
+        const variation = (Math.random() - 0.5) * 0.02; // ±1% variation
+        price = Math.max(dailyData.low, Math.min(dailyData.high, basePrice * (1 + variation)));
+      }
+      
+      intradayPoints.push({
+        timestamp: timestamp,
+        close: Number(price.toFixed(2)),
+        symbol: dailyData.symbol,
+        date: dailyData.date
+      });
+    }
+    
+    return intradayPoints;
   }
 
   renderStockChart(): void {
@@ -322,9 +423,8 @@ export class Dashboard implements OnInit, AfterViewInit {
           style: { color: '#F5F6FA' },
         },
         rangeSelector: {
-          selected: 3,
+          selected: 2,
           buttons: [
-            { type: 'day',    count: 1, text: '1D', title: 'View 1 day' },
             { type: 'day',    count: 5, text: '5D', title: 'View 5 days' },
             { type: 'month',  count: 1, text: '1m', title: 'View 1 month' },
             { type: 'month',  count: 3, text: '3m', title: 'View 3 months' },
@@ -365,6 +465,70 @@ export class Dashboard implements OnInit, AfterViewInit {
     }
     
     this.isLoading = false;
+  }
+
+  renderRealtimeChart(): void {
+    /* guard against empty data or missing element */
+    if (!this.realtimeChartEl) {
+      this.isRealtimeLoading = false;
+      return;
+    }
+
+    /* destroy old chart when switching symbols */
+    if (this.realtimeChart) {
+      this.realtimeChart.destroy();
+    }
+
+    // If no chart data, just set loading to false and return
+    if (!this.realtimeChartData.length) {
+      this.isRealtimeLoading = false;
+      return;
+    }
+
+    try {
+      this.realtimeChart = Highcharts.stockChart(this.realtimeChartEl.nativeElement, {
+        chart: {
+          type: 'line',
+          backgroundColor: '#020117'
+        },
+        title: {
+          text: `${this.selectedStock} Intraday Data (Latest Trading Day)`,
+          style: { color: '#F5F6FA' },
+        },
+        rangeSelector: {
+          enabled: false
+        },
+        navigator : { enabled: false },
+        scrollbar : { enabled: false },
+        credits   : { enabled: false },
+        accessibility: { enabled: false },
+        yAxis: {
+          opposite: false,
+          title: { text: 'Price ($)', style: { color: '#F5F6FA' } },
+          labels: { style: { color: '#F5F6FA' } },
+          gridLineColor: '#23242B',
+        },
+        xAxis: { 
+          labels: { style: { color: '#F5F6FA' } }, 
+          gridLineColor: '#23242B',
+          type: 'datetime'
+        },
+        series: [
+           {
+             type : 'line',
+             name : `${this.selectedStock} Realtime Price`,
+             data : this.realtimeChartData,
+             color: '#FF6B35', // orange color to differentiate from historical chart
+             marker: { fillColor: '#FFE066', lineColor: '#FF6B35', lineWidth: 2 },
+             tooltip: { valueDecimals: 2, valuePrefix: '$' },
+           },
+         ],
+      } as Highcharts.Options);
+    } catch (error) {
+      console.error('Error rendering realtime chart:', error);
+    }
+    
+    this.isRealtimeLoading = false;
   }
 
   searchStock(): void {

@@ -864,7 +864,7 @@ class SearchStockView(APIView):
 
             us_tz = ZoneInfo("UTC")  # Use UTC to match data timestamps
             end_time = datetime.now(us_tz)
-            start_time = end_time - timedelta(days=7)
+            start_time = end_time - timedelta(days=30)
             start_time_str = start_time.isoformat()
             end_time_str = end_time.isoformat()
 
@@ -987,7 +987,7 @@ class InfluxStockDataView(APIView):
         try:
             us_tz = ZoneInfo("UTC")
             end_time = datetime.now(us_tz)
-            start_time = end_time - timedelta(days=7)
+            start_time = end_time - timedelta(days=30)
             start_time_str = start_time.isoformat()
             end_time_str = end_time.isoformat()
 
