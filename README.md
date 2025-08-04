@@ -133,7 +133,222 @@ run_kafka_writer.py:
 
 # Frontend
 
+## Overview
 
+The frontend is a modern, responsive Angular application that provides an intuitive interface for accessing and analyzing US stock market data. Built with Angular 20 and Angular Material, it offers real-time data visualization, interactive charts, and comprehensive stock analysis tools.
+
+## Technology Stack
+
+- **Framework**: Angular 20.0.0
+- **UI Library**: Angular Material 20.0.3
+- **Charts**: Highcharts 12.2.0
+- **Styling**: Bootstrap 5.3.7 + SCSS
+- **HTTP Client**: Angular HttpClient
+- **State Management**: RxJS Observables and BehaviorSubject
+
+## Application Structure
+
+```
+Frontend/Stock_Analysis_Frontend/
+├── src/
+│   ├── app/
+│   │   ├── home/                 # Landing page with search
+│   │   ├── dashboard/            # Main analytics dashboard
+│   │   ├── historical-data/      # Historical data visualization
+│   │   ├── options-data/         # Options chain analysis
+│   │   ├── services/             # Data services and API calls
+│   │   ├── models/               # TypeScript interfaces
+│   │   ├── app-module.ts         # Main Angular module
+│   │   ├── app-routing-module.ts # Routing configuration
+│   │   └── app.ts               # Root component
+│   ├── index.html               # Main HTML file
+│   ├── main.ts                  # Application entry point
+│   └── styles.scss              # Global styles
+├── package.json                 # Dependencies and scripts
+├── angular.json                 # Angular CLI configuration
+└── README.md                    # Frontend-specific documentation
+```
+
+## Key Features
+
+### 1. Home Page (`/`)
+
+- **Intelligent Search**: Search by ticker symbol or company name
+- **Popular Stocks**: Quick access to 120+ major US stocks
+- **Real-time Suggestions**: Autocomplete with stock aliases
+- **Responsive Design**: Works seamlessly on all devices
+
+### 2. Dashboard (`/dashboard`)
+
+- **Performance Overview**: Top performing stocks display
+- **Real-time Metrics**: Live stock price updates
+- **Interactive Charts**: Highcharts integration for data visualization
+- **Key Indicators**: Price changes, volume, and market trends
+
+### 3. Historical Data (`/HistoricalData`)
+
+- **Time-series Analysis**: Historical stock data visualization
+- **Data Filtering**: Date range selection and symbol filtering
+- **Export Capabilities**: Download data in various formats
+- **Pagination**: Efficient handling of large datasets
+
+### 4. Options Data (`/OptionsData`)
+
+- **Options Chain Display**: Complete call/put options analysis
+- **Strike Price Analysis**: Interactive strike price visualization
+- **Greeks Calculation**: Implied volatility and other options metrics
+- **Expiration Tracking**: Multiple expiration date support
+
+## Services Architecture
+
+### StockDataService
+
+- **API Communication**: Handles all backend microservice calls
+- **Data Caching**: Implements intelligent caching for performance
+- **Error Handling**: Comprehensive error management and retry logic
+- **Timeout Management**: Configurable request timeouts
+
+### StockSearchService
+
+- **Local Database**: 120+ major US stocks with aliases
+- **Fuzzy Search**: Intelligent matching with company names and symbols
+- **Popular Stocks**: Curated list of frequently accessed stocks
+- **Performance Optimization**: Fast search with minimal latency
+
+## Data Models
+
+### StockData Interface
+
+```typescript
+interface StockData {
+  symbol: string;
+  date: string;
+  open: number | null;
+  high: number | null;
+  low: number | null;
+  close: number | null;
+  volume: number | null;
+}
+```
+
+### OptionData Interface
+
+```typescript
+interface OptionData {
+  contractSymbol: string;
+  lastTradeDate: string;
+  expirationDate: string;
+  strike: number | null;
+  lastPrice: number | null;
+  bid: number | null;
+  ask: number | null;
+  change: number | null;
+  percentChange: number | null;
+  volume: number | null;
+  openInterest: number | null;
+  impliedVolatility: number | null;
+  inTheMoney: boolean | null;
+  contractSize: string;
+  currency: string;
+  StockName: string;
+}
+```
+
+## API Integration
+
+The frontend communicates with backend microservices through RESTful APIs:
+
+- **Base URL**: `http://localhost:8006`
+- **Endpoints**:
+  - `GET /api/stock-data/` - Retrieve all stock data
+  - `GET /api/options-data/` - Get options chain data
+  - `GET /api/search/{stockName}` - Search for specific stocks
+  - `GET /api/realtime/{stockName}` - Get real-time data
+  - `GET /api/stock-names/{stockName}` - Get stock names for autocomplete
+
+## Setup Instructions
+
+### Prerequisites
+
+- Node.js 18+ and npm
+- Angular CLI 20.0.3
+
+### Installation
+
+```bash
+# Navigate to frontend directory
+cd Frontend/Stock_Analysis_Frontend
+
+# Install dependencies
+npm install
+
+# Start development server
+ng serve
+```
+
+### Build for Production
+
+```bash
+# Build the application
+ng build --configuration production
+
+# The built files will be in the dist/ directory
+```
+
+### Running Tests
+
+```bash
+# Unit tests
+ng test
+
+# End-to-end tests (if configured)
+ng e2e
+```
+
+## Development Features
+
+### Code Scaffolding
+
+```bash
+# Generate new component
+ng generate component component-name
+
+# Generate new service
+ng generate service service-name
+
+# Generate new interface
+ng generate interface interface-name
+```
+
+### Available Scripts
+
+- `npm start` - Start development server
+- `npm run build` - Build for production
+- `npm run watch` - Build with watch mode
+- `npm test` - Run unit tests
+
+## Performance Optimizations
+
+- **Lazy Loading**: Components loaded on-demand
+- **Data Caching**: Intelligent caching of frequently accessed data
+- **Image Optimization**: Optimized assets and lazy loading
+- **Bundle Splitting**: Code splitting for faster initial load
+- **HTTP Interceptors**: Request/response optimization
+
+## Browser Support
+
+- Chrome 90+
+- Firefox 88+
+- Safari 14+
+- Edge 90+
+
+## Contributing
+
+1. Follow Angular style guide
+2. Use TypeScript strict mode
+3. Write unit tests for new features
+4. Ensure responsive design
+5. Optimize for performance
 
 
 # Load Balancing and Resilience
