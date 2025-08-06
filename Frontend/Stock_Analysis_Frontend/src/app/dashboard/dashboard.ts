@@ -4,9 +4,11 @@ import {
   AfterViewInit,
   ElementRef,
   ViewChild,
+  OnDestroy,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import * as Highcharts from 'highcharts/highstock';
+import { interval, Subscription } from 'rxjs';
 
 import { StockDataService } from '../services/stock-data.service';
 import { StockSearchService, StockInfo } from '../services/stock-search.service';
@@ -19,7 +21,7 @@ import { StockData } from '../models/stock-data.interface';
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.scss'],
 })
-export class Dashboard implements OnInit, AfterViewInit {
+export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   /* ---------------- view state ---------------- */
   stockData: StockData[] = [];
   chartData: [number, number][] = [];
@@ -193,6 +195,11 @@ export class Dashboard implements OnInit, AfterViewInit {
   private chart?: Highcharts.Chart;
   private realtimeChart?: Highcharts.Chart;
 
+  // Auto-reload functionality
+  private realtimeAutoReloadSubscription?: Subscription;
+  private optionsAutoReloadSubscription?: Subscription;
+  private readonly AUTO_RELOAD_INTERVAL = 15 * 60 * 1000; // 15 minutes in milliseconds
+
   constructor(
     private stockDataService: StockDataService,
     private stockSearchService: StockSearchService,
@@ -219,6 +226,9 @@ export class Dashboard implements OnInit, AfterViewInit {
           this.extractAvailableStocks();
           this.dataLoaded = true;
           this.setSelectedStockAndUpdate();
+          
+          // Start auto-reload timers
+          this.startAutoReload();
         } else {
           this.error = response.message || 'Failed to load stock data';
         }
@@ -596,5 +606,27 @@ export class Dashboard implements OnInit, AfterViewInit {
         this.isLoading = false;
       },
     });
+  }
+
+  startAutoReload(): void {
+    // Auto-reload realtime data every 15 minutes
+    this.realtimeAutoReloadSubscription = interval(this.AUTO_RELOAD_INTERVAL).subscribe(() => {
+      this.loadRealtimeData();
+    });
+
+    // Auto-reload options data every 15 minutes
+    this.optionsAutoReloadSubscription = interval(this.AUTO_RELOAD_INTERVAL).subscribe(() => {
+      this.loadOptionsData();
+    });
+  }
+
+  ngOnDestroy(): void {
+    // Clean up subscriptions to prevent memory leaks
+    if (this.realtimeAutoReloadSubscription) {
+      this.realtimeAutoReloadSubscription.unsubscribe();
+    }
+    if (this.optionsAutoReloadSubscription) {
+      this.optionsAutoReloadSubscription.unsubscribe();
+    }
   }
 }
