@@ -34,4 +34,4 @@ metadata:
   labels:
     io.kompose.service: airflow
   name: airflow-cm2
-  # namespace: stock-pipeline
+ 

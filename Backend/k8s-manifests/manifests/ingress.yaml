@@ -16,7 +16,6 @@ spec:
         - kafka.localhost
         - grafana.localhost
         - prometheus.localhost
-        - loki.localhost    
       secretName: ingress-tls-secret
   rules:
     - host: data-collector.localhost

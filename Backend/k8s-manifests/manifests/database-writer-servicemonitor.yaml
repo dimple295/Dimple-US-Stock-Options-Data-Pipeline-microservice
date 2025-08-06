@@ -4,7 +4,7 @@ metadata:
   name: database-writer-servicemonitor
   labels:
     release: kube-prometheus-stack-prometheus
-  # namespace: stock-pipeline
+ 
 spec:
   jobLabel: io.kompose.service
   selector:

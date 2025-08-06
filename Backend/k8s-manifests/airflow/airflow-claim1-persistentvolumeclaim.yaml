@@ -4,7 +4,7 @@ metadata:
   labels:
     io.kompose.service: airflow-claim1
   name: airflow-claim1
-  # namespace: stock-pipeline
+ 
 spec:
   accessModes:
     - ReadWriteOnce

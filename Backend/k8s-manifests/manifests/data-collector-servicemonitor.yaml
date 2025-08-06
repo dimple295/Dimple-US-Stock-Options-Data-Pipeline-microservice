@@ -4,7 +4,7 @@ metadata:
   name: data-collector-servicemonitor
   labels:
     release: kube-prometheus-stack-prometheus
-  # namespace: stock-pipeline
+ 
 spec:
   jobLabel: io.kompose.service
   selector:

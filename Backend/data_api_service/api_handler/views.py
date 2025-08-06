@@ -498,10 +498,17 @@ def get_connection_string():
 
 def connect_with_retry(max_retries=5, retry_delay=5):
     """Connect to PostgreSQL with retries."""
-    conn_str = get_connection_string()
+    # conn_str = get_connection_string()
     for attempt in range(1, max_retries + 1):
         try:
-            conn = psycopg2.connect(conn_str)
+            # conn = psycopg2.connect(conn_str)
+            conn = psycopg2.connect(
+                    user="sa",
+                    password="Passw0rd!",
+                    host="postgres-service",  
+                    port="5432",
+                    database="us_stock_options_db"
+                )
             logger.info("Successfully connected to PostgreSQL")
             return conn
         except psycopg2.Error as e:

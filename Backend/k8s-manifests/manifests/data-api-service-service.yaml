@@ -7,7 +7,7 @@ metadata:
   labels:
     io.kompose.service: data-api-service
   name: data-api-service
-  # namespace: stock-pipeline
+ 
 spec:
   type: ClusterIP
   ports:

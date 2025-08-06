@@ -7,7 +7,7 @@ metadata:
   labels:
     io.kompose.service: data-api-service
   name: data-api-service
-  # # namespace: stock-pipeline
+  #
 spec:
   replicas: 2
   selector:
@@ -21,8 +21,8 @@ spec:
       labels:
         io.kompose.service: data-api-service
     spec:
-      imagePullSecrets:
-        - name: dockerhub-secret
+      # imagePullSecrets:
+      #   - name: dockerhub-secret
       containers:
         - env:
             - name: DJANGO_DEBUG
@@ -39,7 +39,7 @@ spec:
               value: dash-gtd.database.windows.net
             - name: SQL_USERNAME
               value: dash_gtd
-          image: hdm08/data_api_service:latest
+          image: hdm08/data_api_service_arm1:latest
           name: data-api-service
           imagePullPolicy: IfNotPresent
           ports:

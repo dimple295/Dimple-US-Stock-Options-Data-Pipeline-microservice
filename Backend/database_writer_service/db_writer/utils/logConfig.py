@@ -1,7 +1,7 @@
 import logging
 
 class LogConfig:
-    def __init__(self, name='collector_app'):
+    def __init__(self, name='db_writer_app'):
         self.logger = logging.getLogger(name)
         self.logger.setLevel(logging.INFO) # Default level
 
