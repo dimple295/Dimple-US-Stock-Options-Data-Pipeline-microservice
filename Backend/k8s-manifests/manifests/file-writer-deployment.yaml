@@ -7,7 +7,7 @@ metadata:
   labels:
     io.kompose.service: file-writer
   name: file-writer
-  # namespace: stock-pipeline
+ 
 spec:
   replicas: 2
   selector:
@@ -23,8 +23,8 @@ spec:
       labels:
         io.kompose.service: file-writer
     spec:
-      imagePullSecrets:
-        - name: dockerhub-secret
+      # imagePullSecrets:
+      #   - name: dockerhub-secret
       containers:
         - env:
             - name: AWS_ACCESS_KEY_ID
@@ -33,7 +33,7 @@ spec:
               value: Driver={ODBC Driver 18 for SQL Server};Server=dash-gtd.database.windows.net;Database=us_stock_options_db;Uid=dash_gtd;Pwd=wearethebest@69;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=60;
             - name: S3_BUCKET_NAME
               value: dash-gtd-us-east-1-processed-data
-          image: hdm08/file_writer_service:latest
+          image: hdm08/file_writer_service_arm1:latest
           name: file-writer
           imagePullPolicy: IfNotPresent
           ports:

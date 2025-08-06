@@ -190,7 +190,7 @@ DATABASES = {
         'NAME': os.getenv('POSTGRES_DB', 'us_stock_options_db'),
         'USER': os.getenv('POSTGRES_USER', 'sa'),
         'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'Passw0rd!'),
-        'HOST': os.getenv('POSTGRES_HOST', 'postgres'),
+        'HOST': os.getenv('POSTGRES_HOST', 'postgres-service'),
         'PORT': os.getenv('POSTGRES_PORT', '5432'),
     }
 }

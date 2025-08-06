@@ -128,7 +128,7 @@ class HistoricalDataFileWriter:
     def __init__(self):
         # Environment Variables
         # Changed to use POSTGRES_CONNECTION_STRING for local PostgreSQL
-        self.conn_strings = [os.getenv('POSTGRES_CONNECTION_STRING', 'postgresql://sa:Passw0rd!@postgres:5432/us_stock_options_db')]
+        # self.conn_strings = [os.getenv('POSTGRES_CONNECTION_STRING', 'postgresql://sa:Passw0rd!@postgres:5432/us_stock_options_db')]
         self.max_retries = 5
         self.retry_delay = 30
         self.conn = None
@@ -151,41 +151,48 @@ class HistoricalDataFileWriter:
 
     def connect_postgres(self):
         """Establish a connection to the PostgreSQL database."""
-        for conn_str in self.conn_strings:
-            logger.info(f"Attempting connection using connection string: {conn_str}")
-            for attempt in range(1, self.max_retries + 1):
-                try:
-                    server = "postgres"
-                    server_ip = socket.gethostbyname(server)
-                    logger.info(f"Resolved server '{server}' to IP: {server_ip}")
+        # for conn_str in self.conn_strings:
+            # logger.info(f"Attempting connection using connection string: {conn_str}")
+        for attempt in range(1, self.max_retries + 1):
+            try:
+                # server = "postgres"
+                # server_ip = socket.gethostbyname(server)
+                # logger.info(f"Resolved server '{server}' to IP: {server_ip}")
 
-                    self.conn = psycopg2.connect(conn_str)
-                    self.cursor = self.conn.cursor()
+                # self.conn = psycopg2.connect(conn_str)
+                self.conn = psycopg2.connect(
+                        user="sa",
+                        password="Passw0rd!",
+                        host="postgres-service",  
+                        port="5432",
+                        database="us_stock_options_db"
+                    )
+                self.cursor = self.conn.cursor()
 
-                    # Verify table existence for StockData
-                    self.cursor.execute("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'StockData')")
-                    if not self.cursor.fetchone()[0]:
-                        raise Exception("Table 'StockData' does not exist in database.")
-                    
-                    # Verify table existence for call_options
-                    self.cursor.execute("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'call_options')")
-                    if not self.cursor.fetchone()[0]:
-                        raise Exception("Table 'call_options' does not exist in database.")
+                # Verify table existence for StockData
+                self.cursor.execute("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'StockData')")
+                if not self.cursor.fetchone()[0]:
+                    raise Exception("Table 'StockData' does not exist in database.")
+                
+                # Verify table existence for call_options
+                self.cursor.execute("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'call_options')")
+                if not self.cursor.fetchone()[0]:
+                    raise Exception("Table 'call_options' does not exist in database.")
 
-                    # Verify table existence for put_options
-                    self.cursor.execute("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'put_options')")
-                    if not self.cursor.fetchone()[0]:
-                        raise Exception("Table 'put_options' does not exist in database.")
+                # Verify table existence for put_options
+                self.cursor.execute("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'put_options')")
+                if not self.cursor.fetchone()[0]:
+                    raise Exception("Table 'put_options' does not exist in database.")
 
-                    logger.info("Successfully connected to PostgreSQL")
-                    return
-                except (psycopg2.Error, socket.gaierror) as e:
-                    logger.error(f"Connection attempt {attempt}/{self.max_retries} failed: {e}")
-                    if attempt < self.max_retries:
-                        logger.info(f"Waiting {self.retry_delay} seconds before retrying...")
-                        time.sleep(self.retry_delay)
-                    else:
-                        logger.warning(f"All attempts failed for connection string.")
+                logger.info("Successfully connected to PostgreSQL")
+                return
+            except (psycopg2.Error, socket.gaierror) as e:
+                logger.error(f"Connection attempt {attempt}/{self.max_retries} failed: {e}")
+                if attempt < self.max_retries:
+                    logger.info(f"Waiting {self.retry_delay} seconds before retrying...")
+                    time.sleep(self.retry_delay)
+                else:
+                    logger.warning(f"All attempts failed for connection string.")
             raise Exception("All connection attempts failed to PostgreSQL.")
 
 

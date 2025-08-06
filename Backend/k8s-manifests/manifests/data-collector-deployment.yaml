@@ -7,7 +7,6 @@ metadata:
   labels:
     io.kompose.service: data-collector
   name: data-collector
-  # namespace: stock-pipeline
 spec:
   replicas: 2
   selector:
@@ -21,8 +20,6 @@ spec:
       labels:
         io.kompose.service: data-collector
     spec:
-      imagePullSecrets:
-        - name: dockerhub-secret
       containers:
         - env:
             - name: APP_DEBUG
@@ -32,7 +29,7 @@ spec:
             - name: KAFKA_15min_TOPIC
               value: 15min-data
             - name: KAFKA_BOOTSTRAP_SERVERS
-              value: kafka.stock-pipeline.svc.cluster.local:9092
+              value: kafka-service:9092
             - name: KAFKA_TASK_TOPIC
               value: task-queue
             - name: KAFKA_DAILY_TOPIC
@@ -57,7 +54,7 @@ spec:
               value: 403631c4756e4d00b52455514acd8124
             - name: TWELVE_DATA_API_5
               value: ece1bbcef7a341beb1629adabc723fdd
-          image: hdm08/data_collector_service:latest
+          image: hdm08/data_collector_service_arm:latest
           name: data-collector
           imagePullPolicy: IfNotPresent
           ports:

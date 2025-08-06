@@ -7,7 +7,6 @@ metadata:
   labels:
     io.kompose.service: database-writer
   name: database-writer
-  # namespace: stock-pipeline
 spec:
   type: ClusterIP
   ports:

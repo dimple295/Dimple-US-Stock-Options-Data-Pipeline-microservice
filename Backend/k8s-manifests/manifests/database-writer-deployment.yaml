@@ -7,7 +7,7 @@ metadata:
   labels:
     io.kompose.service: database-writer
   name: database-writer
-  # namespace: stock-pipeline
+ 
 spec:
   replicas: 2
   selector:
@@ -21,14 +21,16 @@ spec:
       labels:
         io.kompose.service: database-writer
     spec:
-      imagePullSecrets:
-        - name: dockerhub-secret
+      # imagePullSecrets:
+      #   - name: dockerhub-secret
       containers:
         - env:
             - name: APP_DEBUG
               value: "True"
             - name: AZURE_SQL_CONNECTION_STRING
               value: Driver={ODBC Driver 18 for SQL Server};Server=dash-gtd.database.windows.net;Database=us_stock_options_db;Uid=dash_gtd;Pwd=wearethebest@69;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=60;
+            - name: POSTGRES_CONNECTION_STRING
+              value: "postgresql://sa:Passw0rd!@postgres:5432/us_stock_options_db"
             - name: DJANGO_SECRET_KEY
               value: django-insecure-np#5k+3!h2y5he0r=inoh*l5^nw*!t-&e^t-p5zb5ror*^jkyw
             - name: INFLUXDB_BUCKET
@@ -40,7 +42,7 @@ spec:
             - name: INFLUXDB_URL
               value: https://us-east-1-1.aws.cloud2.influxdata.com
             - name: KAFKA_BOOTSTRAP_SERVERS
-              value: kafka.stock-pipeline.svc.cluster.local:9092
+              value: kafka-service:9092
             - name: KAFKA_PROCESSED_15MIN
               value: processed-15min-data
             - name: KAFKA_PROCESSED_DAILY
@@ -50,8 +52,8 @@ spec:
             - name: KAFKA_PROCESSED_OPTIONS
               value: processed-options-data
             - name: RUN_DB_HANDLER
-              value: "False"
-          image: hdm08/database_writer_service:latest
+              value: "True"
+          image: hdm08/database_writer_service_arm:latest
           name: database-writer
           imagePullPolicy: IfNotPresent
           ports:

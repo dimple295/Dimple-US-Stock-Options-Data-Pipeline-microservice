@@ -4,8 +4,7 @@ import time
 import threading
 import traceback
 import subprocess
-from confluent_kafka import Consumer, KafkaError, KafkaException
-
+from confluent_kafka import KafkaError, TopicPartition, KafkaException
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
