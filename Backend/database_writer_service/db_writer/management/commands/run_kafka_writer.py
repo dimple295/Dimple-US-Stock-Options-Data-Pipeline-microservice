@@ -21,48 +21,48 @@ daily = DailySQLHandler()
 historical = HistoricalSQLHandler()
 options = OptionsSQLHandler()
 
-def trigger_backup():
-    """Trigger a PostgreSQL backup and manage retention."""
-    try:
-        db_name = "us_stock_options_db"
-        db_user = "sa"
-        db_host = "postgres"
-        db_port = "5432"
-        backup_dir = "/var/backups"
-        timestamp = subprocess.check_output(["date", "+%Y%m%d_%H%M%S"]).decode().strip()
-        backup_file = f"{backup_dir}/{db_name}_{timestamp}.dump"
-        max_backups = 5
+# def trigger_backup():
+#     """Trigger a PostgreSQL backup and manage retention."""
+#     try:
+#         db_name = "us_stock_options_db"
+#         db_user = "sa"
+#         db_host = "postgres"
+#         db_port = "5432"
+#         backup_dir = "/var/backups"
+#         timestamp = subprocess.check_output(["date", "+%Y%m%d_%H%M%S"]).decode().strip()
+#         backup_file = f"{backup_dir}/{db_name}_{timestamp}.dump"
+#         max_backups = 5
 
-        os.makedirs(backup_dir, exist_ok=True)
-        os.chmod(backup_dir, 0o777)
-        logger.info(f"Backup directory: {backup_dir}")
+#         os.makedirs(backup_dir, exist_ok=True)
+#         os.chmod(backup_dir, 0o777)
+#         logger.info(f"Backup directory: {backup_dir}")
 
-        env = os.environ.copy()
-        env["PGPASSWORD"] = "Passw0rd!"
-        subprocess.run([
-            "pg_dump", "-U", db_user, "-h", db_host, "-p", db_port, "-Fc", db_name,
-            "-f", backup_file
-        ], env=env, check=True)
-        logger.info(f"Backup successful: {backup_file}")
+#         env = os.environ.copy()
+#         env["PGPASSWORD"] = "Passw0rd!"
+#         subprocess.run([
+#             "pg_dump", "-U", db_user, "-h", db_host, "-p", db_port, "-Fc", db_name,
+#             "-f", backup_file
+#         ], env=env, check=True)
+#         logger.info(f"Backup successful: {backup_file}")
 
-        if not os.path.exists(backup_file):
-            logger.error(f"Backup file not found after creation: {backup_file}")
-            return
+#         if not os.path.exists(backup_file):
+#             logger.error(f"Backup file not found after creation: {backup_file}")
+#             return
 
-        backups = sorted([f for f in os.listdir(backup_dir) if f.startswith(f"{db_name}_") and f.endswith(".dump")], reverse=True)
-        logger.info(f"Found {len(backups)} backups: {backups}")
-        for old_backup in backups[max_backups:]:
-            old_backup_path = os.path.join(backup_dir, old_backup)
-            try:
-                os.remove(old_backup_path)
-                logger.info(f"Deleted old backup: {old_backup}")
-            except Exception as e:
-                logger.error(f"Failed to delete old backup {old_backup}: {e}")
+#         backups = sorted([f for f in os.listdir(backup_dir) if f.startswith(f"{db_name}_") and f.endswith(".dump")], reverse=True)
+#         logger.info(f"Found {len(backups)} backups: {backups}")
+#         for old_backup in backups[max_backups:]:
+#             old_backup_path = os.path.join(backup_dir, old_backup)
+#             try:
+#                 os.remove(old_backup_path)
+#                 logger.info(f"Deleted old backup: {old_backup}")
+#             except Exception as e:
+#                 logger.error(f"Failed to delete old backup {old_backup}: {e}")
 
-    except subprocess.CalledProcessError as e:
-        logger.error(f"Backup failed: {e}")
-    except Exception as e:
-        logger.error(f"Unexpected error during backup: {e}")
+#     except subprocess.CalledProcessError as e:
+#         logger.error(f"Backup failed: {e}")
+#     except Exception as e:
+#         logger.error(f"Unexpected error during backup: {e}")
 
 # class Command(BaseCommand):
 #     help = 'Kafka consumer with robust partition processing'
@@ -202,7 +202,7 @@ class Command(BaseCommand):
         super().__init__()
         self.running = True
         self.partition_threads = []
-        self.active_partitions = {}  # Track assigned partitions
+        self.active_partitions = {}  
         self.consumer = None
 
     def get_partitions(self, consumer, topic, retries=3, delay=5):
@@ -261,15 +261,15 @@ class Command(BaseCommand):
                             try:
                                 if topic == settings.KAFKA_TOPICS['processed-daily']:
                                     daily.insert_data(data)
-                                    trigger_backup()
+                                    # trigger_backup()
                                 elif topic == settings.KAFKA_TOPICS['processed-15min']:
                                     influx.insert_data(data)
                                 elif topic == settings.KAFKA_TOPICS['processed-historical']:
                                     historical.insert_data(data)
-                                    trigger_backup()
+                                    # trigger_backup()
                                 elif topic == settings.KAFKA_TOPICS['processed-options']:
                                     options.insert_data(data)
-                                    trigger_backup()
+                                    # trigger_backup()
                                 logger.info(f"Successfully processed data for {topic} partition {partition}")
                                 break
                             except Exception as e:

@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+  labels:
+    io.kompose.service: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      io.kompose.service: frontend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        io.kompose.service: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: hdm08/frontend-service_arm1:latest
+          ports:
+            - containerPort: 4200
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+spec:
+  selector:
+    io.kompose.service: frontend
+  ports:
+    - protocol: TCP
+      port: 4200       
+      targetPort: 4200 
+  type: ClusterIP  

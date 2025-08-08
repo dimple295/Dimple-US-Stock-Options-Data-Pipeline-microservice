@@ -44,10 +44,29 @@ spec:
               value: processed-historical-data
             - name: KAFKA_PROCESSED_OPTIONS
               value: processed-options-data
-          image: hdm08/data_processor_service_arm:latest
+          image: hdm08/data_processor_service_arm2:latest
           name: data-processor
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8001
               protocol: TCP
       restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert --file docker-compose.yml --out k8s-manifests
+    kompose.version: 1.36.0 (HEAD)
+  labels:
+    io.kompose.service: data-processor
+  name: data-processor
+ 
+spec:
+  type: ClusterIP  
+  selector:
+    io.kompose.service: data-processor
+  ports:
+    - name: http
+      port: 8001
+      targetPort: 8001

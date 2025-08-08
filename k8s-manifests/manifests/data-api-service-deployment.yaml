@@ -36,13 +36,32 @@ spec:
             - name: SQL_PASSWORD
               value: wearethebest@69
             - name: SQL_SERVER
-              value: dash-gtd.database.windows.net
+              value: dash-gtd02.database.windows.net
             - name: SQL_USERNAME
               value: dash_gtd
-          image: hdm08/data_api_service_arm1:latest
+          image: hdm08/data_api_service_arm2:latest
           name: data-api-service
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8006
               protocol: TCP
       restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert --file docker-compose.yml --out k8s-manifests
+    kompose.version: 1.36.0 (HEAD)
+  labels:
+    io.kompose.service: data-api-service
+  name: data-api-service
+ 
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 8006
+      targetPort: 8006
+  selector:
+    io.kompose.service: data-api-service

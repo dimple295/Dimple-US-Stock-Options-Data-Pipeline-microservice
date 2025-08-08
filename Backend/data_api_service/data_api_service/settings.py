@@ -134,32 +134,32 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.dummy',
-#         'NAME': os.getenv('SQL_DATABASE', 'us_stock_options_db'),
-#         'OPTIONS': {
-#             'driver': os.getenv('SQL_DRIVER', 'ODBC Driver 18 for SQL Server'),
-#             'host': os.getenv('SQL_SERVER', 'dash-gtd.database.windows.net'),
-#             'database': os.getenv('SQL_DATABASE', 'us_stock_options_db'),
-#             'user': os.getenv('SQL_USERNAME', 'dash_gtd'),
-#             'password': os.getenv('SQL_PASSWORD', 'wearethebest@69'),
-#             'extra_params': 'Encrypt=yes;TrustServerCertificate=no;Connection Timeout=60',
-#         },
-#     },
-#     'secondary_db': {
-#         'ENGINE': 'django.db.backends.dummy',
-#         'NAME': os.getenv('SQL_DATABASE', 'us_stock_options_db'),
-#         'OPTIONS': {
-#             'driver': os.getenv('SQL_DRIVER', 'ODBC Driver 18 for SQL Server'),
-#             'host': os.getenv('SQL_SERVER', 'dash-gtd.database.windows.net'),
-#             'database': os.getenv('SQL_DATABASE', 'us_stock_options_db'),
-#             'user': os.getenv('SQL_USERNAME', 'dash_gtd'),
-#             'password': os.getenv('SQL_PASSWORD', 'wearethebest@69'),
-#             'extra_params': 'Encrypt=yes;TrustServerCertificate=no;Connection Timeout=60',
-#         },
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.dummy',
+        'NAME': os.getenv('SQL_DATABASE', 'us_stock_options_db'),
+        'OPTIONS': {
+            'driver': os.getenv('SQL_DRIVER', 'ODBC Driver 18 for SQL Server'),
+            'host': os.getenv('SQL_SERVER', 'dash-gtd.database.windows.net'),
+            'database': os.getenv('SQL_DATABASE', 'us_stock_options_db'),
+            'user': os.getenv('SQL_USERNAME', 'dash_gtd'),
+            'password': os.getenv('SQL_PASSWORD', 'wearethebest@69'),
+            'extra_params': 'Encrypt=yes;TrustServerCertificate=no;Connection Timeout=60',
+        },
+    },
+    'secondary_db': {
+        'ENGINE': 'django.db.backends.dummy',
+        'NAME': os.getenv('SQL_DATABASE', 'us_stock_options_db'),
+        'OPTIONS': {
+            'driver': os.getenv('SQL_DRIVER', 'ODBC Driver 18 for SQL Server'),
+            'host': os.getenv('SQL_SERVER', 'dash-gtd.database.windows.net'),
+            'database': os.getenv('SQL_DATABASE', 'us_stock_options_db'),
+            'user': os.getenv('SQL_USERNAME', 'dash_gtd'),
+            'password': os.getenv('SQL_PASSWORD', 'wearethebest@69'),
+            'extra_params': 'Encrypt=yes;TrustServerCertificate=no;Connection Timeout=60',
+        },
+    }
+}
 
 # DATABASE_ROUTERS = ['api_handler.routers.MultiDBRouter']
 
@@ -184,16 +184,16 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 #     'DELETE',
 #     'OPTIONS'
 # ]
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DB', 'us_stock_options_db'),
-        'USER': os.getenv('POSTGRES_USER', 'sa'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'Passw0rd!'),
-        'HOST': os.getenv('POSTGRES_HOST', 'postgres-service'),
-        'PORT': os.getenv('POSTGRES_PORT', '5432'),
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': os.getenv('POSTGRES_DB', 'us_stock_options_db'),
+#         'USER': os.getenv('POSTGRES_USER', 'sa'),
+#         'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'Passw0rd!'),
+#         'HOST': os.getenv('POSTGRES_HOST', 'postgres-service'),
+#         'PORT': os.getenv('POSTGRES_PORT', '5432'),
+#     }
+# }
 
 # REST_FRAMEWORK = {
 #     'DEFAULT_RENDERER_CLASSES': [
