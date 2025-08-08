@@ -1,0 +1,96 @@
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   annotations:
+#     kompose.cmd: kompose convert --file docker-compose.yml --out k8s-manifests
+#     kompose.version: 1.36.0 (HEAD)
+#   labels:
+#     io.kompose.service: kafka-init
+#   name: kafka-init
+# spec:
+#   replicas: 2
+#   selector:
+#     matchLabels:
+#       io.kompose.service: kafka-init
+#   template:
+#     metadata:
+#       annotations:
+#         kompose.cmd: kompose convert --file docker-compose.yml --out k8s-manifests
+#         kompose.version: 1.36.0 (HEAD)
+#       labels:
+#         io.kompose.service: kafka-init
+#     spec:
+#       containers:
+#         - args:
+#             - |2
+#               for i in {1..30}; do
+#                 kafka-broker-api-versions --bootstrap-server kafka-service:9092 && break
+#                 echo 'Waiting for Kafka to be ready...'
+#                 sleep 5
+#               done
+
+#               kafka-topics --create --if-not-exists --topic  task-queue                     --bootstrap-server kafka-service:9092 --replication-factor 1 --partitions 5
+              
+#               kafka-topics --create --if-not-exists --topic  daily-data                     --bootstrap-server kafka-service:9092 --replication-factor 1 --partitions 5
+#               kafka-topics --create --if-not-exists --topic  15min-data                     --bootstrap-server kafka-service:9092 --replication-factor 1 --partitions 5
+#               kafka-topics --create --if-not-exists --topic  options-data                   --bootstrap-server kafka-service:9092 --replication-factor 1 --partitions 5
+#               kafka-topics --create --if-not-exists --topic  historical-data                --bootstrap-server kafka-service:9092 --replication-factor 1 --partitions 5
+
+#               kafka-topics --create --if-not-exists --topic  processed-daily-data           --bootstrap-server kafka-service:9092 --replication-factor 1 --partitions 5
+#               kafka-topics --create --if-not-exists --topic  processed-15min-data           --bootstrap-server kafka-service:9092 --replication-factor 1 --partitions 5
+#               kafka-topics --create --if-not-exists --topic  processed-options-data         --bootstrap-server kafka-service:9092 --replication-factor 1 --partitions 5
+#               kafka-topics --create --if-not-exists --topic  processed-historical-data      --bootstrap-server kafka-service:9092 --replication-factor 1 --partitions 5
+
+#               echo 'Kafka topics created!'
+#           command:
+#             - /bin/bash
+#             - -c
+#           image: confluentinc/cp-kafka:7.4.0
+#           name: kafka-init
+#       # restartPolicy: Always
+
+
+
+
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kafka-init
+  labels:
+    io.kompose.service: kafka-init
+spec:
+  backoffLimit: 4
+  template:
+    metadata:
+      labels:
+        io.kompose.service: kafka-init
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: kafka-init
+          image: confluentinc/cp-kafka:7.4.0
+          command:
+            - /bin/bash
+            - -c
+          args:
+            - |
+              for i in {1..30}; do
+                kafka-broker-api-versions --bootstrap-server kafka-service:9092 && break
+                echo 'Waiting for Kafka to be ready...'
+                sleep 5
+              done
+
+              kafka-topics --create --if-not-exists --topic  task-queue                     --bootstrap-server kafka-service:9092 --replication-factor 1 --partitions 5
+              
+              kafka-topics --create --if-not-exists --topic  daily-data                     --bootstrap-server kafka-service:9092 --replication-factor 1 --partitions 5
+              kafka-topics --create --if-not-exists --topic  15min-data                     --bootstrap-server kafka-service:9092 --replication-factor 1 --partitions 5
+              kafka-topics --create --if-not-exists --topic  options-data                   --bootstrap-server kafka-service:9092 --replication-factor 1 --partitions 5
+              kafka-topics --create --if-not-exists --topic  historical-data                --bootstrap-server kafka-service:9092 --replication-factor 1 --partitions 5
+
+              kafka-topics --create --if-not-exists --topic  processed-daily-data           --bootstrap-server kafka-service:9092 --replication-factor 1 --partitions 5
+              kafka-topics --create --if-not-exists --topic  processed-15min-data           --bootstrap-server kafka-service:9092 --replication-factor 1 --partitions 5
+              kafka-topics --create --if-not-exists --topic  processed-options-data         --bootstrap-server kafka-service:9092 --replication-factor 1 --partitions 5
+              kafka-topics --create --if-not-exists --topic  processed-historical-data      --bootstrap-server kafka-service:9092 --replication-factor 1 --partitions 5
+
+              echo 'Kafka topics created!'

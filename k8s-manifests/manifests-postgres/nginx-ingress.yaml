@@ -1,0 +1,101 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: multi-services-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  # tls:
+  #   - hosts:
+  #       - data-collector.localhost
+  #       - data-api.localhost
+  #       - data-processor.localhost
+  #       - database-writer.localhost
+  #       - file-writer.localhost
+  #       - grafana.localhost
+  #       - prometheus.localhost
+  #     secretName: ingress-tls-secret
+  rules:
+    - host: data-collector.localhost
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: data-collector
+                port:
+                  number: 8000
+          - path: /health
+            pathType: Exact
+            backend:
+              service:
+                name: data-collector
+                port:
+                  number: 8000
+    - host: data-api.localhost
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: data-api-service
+                port:
+                  number: 8006
+    - host: data-processor.localhost
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: data-processor
+                port:
+                  number: 8001
+    - host: database-writer.localhost
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: database-writer
+                port:
+                  number: 8002
+    - host: file-writer.localhost
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: file-writer
+                port:
+                  number: 8003
+    - host: grafana.localhost
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: prometheus-grafana
+                port:
+                  number: 3000
+    - host: prometheus.localhost   
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: prometheus-kube-prometheus-prometheus
+                port:
+                  number: 9090
+  defaultBackend:
+    service:
+      name: data-collector
+      port:
+        number: 8000

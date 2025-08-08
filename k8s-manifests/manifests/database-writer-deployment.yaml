@@ -28,7 +28,7 @@ spec:
             - name: APP_DEBUG
               value: "True"
             - name: AZURE_SQL_CONNECTION_STRING
-              value: Driver={ODBC Driver 18 for SQL Server};Server=dash-gtd.database.windows.net;Database=us_stock_options_db;Uid=dash_gtd;Pwd=wearethebest@69;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=60;
+              value: Driver={ODBC Driver 18 for SQL Server};Server=tcp:dash-gtd02.database.windows.net,1433;Database=us_stock_options_db;Uid=dash_gtd;Pwd=wearethebest@69;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;
             - name: POSTGRES_CONNECTION_STRING
               value: "postgresql://sa:Passw0rd!@postgres:5432/us_stock_options_db"
             - name: DJANGO_SECRET_KEY
@@ -53,10 +53,28 @@ spec:
               value: processed-options-data
             - name: RUN_DB_HANDLER
               value: "True"
-          image: hdm08/database_writer_service_arm:latest
+          image: hdm08/database_writer_service_arm2:latest
           name: database-writer
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8002
               protocol: TCP
       restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert --file docker-compose.yml --out k8s-manifests
+    kompose.version: 1.36.0 (HEAD)
+  labels:
+    io.kompose.service: database-writer
+  name: database-writer
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 8002
+      targetPort: 8002
+  selector:
+    io.kompose.service: database-writer

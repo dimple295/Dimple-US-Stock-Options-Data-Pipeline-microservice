@@ -54,10 +54,29 @@ spec:
               value: 403631c4756e4d00b52455514acd8124
             - name: TWELVE_DATA_API_5
               value: ece1bbcef7a341beb1629adabc723fdd
-          image: hdm08/data_collector_service_arm:latest
+          image: hdm08/data_collector_service_arm2:latest
           name: data-collector
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000
               protocol: TCP
       restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert --file docker-compose.yml --out k8s-manifests
+    kompose.version: 1.36.0 (HEAD)
+  labels:
+    io.kompose.service: data-collector
+  name: data-collector
+ 
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000
+  selector:
+    io.kompose.service: data-collector

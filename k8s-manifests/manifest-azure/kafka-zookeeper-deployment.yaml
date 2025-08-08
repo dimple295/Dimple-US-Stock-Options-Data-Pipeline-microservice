@@ -6,7 +6,7 @@ metadata:
     app: kafka
     io.kompose.service: kafka
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: kafka

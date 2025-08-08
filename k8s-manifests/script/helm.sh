@@ -25,14 +25,8 @@ helm install prometheus prometheus-community/kube-prometheus-stack \
 
 
 # helm install nginx-ingress ingress-nginx/ingress-nginx \
-#   --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-resource-group"=MC_stockPipelineResource_stockCluster_northeurope \
-#   --set controller.publishService.enabled=true \
-#   --set controller.service.type=LoadBalancer \
+#   --set controller.service.type=NodePort \
+#   --set controller.publishService.enabled=true
 
-# docker pull postgres:15-alpine
-# docker pull busybox:latest
-# docker pull confluentinc/cp-zookeeper:7.4.0
-# docker pull confluentinc/cp-kafka:7.4.0
-# docker pull prom/prometheus:latest
-# docker pull grafana/grafana:latest
+
 

@@ -1,3 +1,17 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    io.kompose.service: file-writer-claim0
+  name: file-writer-claim0
+ 
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -30,10 +44,10 @@ spec:
             - name: AWS_ACCESS_KEY_ID
             - name: AWS_SECRET_ACCESS_KEY
             - name: AZURE_SQL_CONNECTION_STRING
-              value: Driver={ODBC Driver 18 for SQL Server};Server=dash-gtd.database.windows.net;Database=us_stock_options_db;Uid=dash_gtd;Pwd=wearethebest@69;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=60;
+              value: Driver={ODBC Driver 18 for SQL Server};Server=tcp:dash-gtd02.database.windows.net,1433;Database=us_stock_options_db;Uid=dash_gtd;Pwd=wearethebest@69;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;
             - name: S3_BUCKET_NAME
               value: dash-gtd-us-east-1-processed-data
-          image: hdm08/file_writer_service_arm1:latest
+          image: hdm08/file_writer_service_arm2:latest
           name: file-writer
           imagePullPolicy: IfNotPresent
           ports:
@@ -47,3 +61,22 @@ spec:
         - name: file-writer-claim0
           persistentVolumeClaim:
             claimName: file-writer-claim0
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert --file docker-compose.yml --out k8s-manifests
+    kompose.version: 1.36.0 (HEAD)
+  labels:
+    io.kompose.service: file-writer
+  name: file-writer
+ 
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 8003
+      targetPort: 8003
+  selector:
+    io.kompose.service: file-writer
