@@ -320,17 +320,17 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     this.stockDataService.getRealtimeData(this.selectedStock).subscribe({
       next: (response) => {
         if (response.status === 'success' && response.data.realtime_data) {
-          // Get the most recent data for the selected stock
+          // Get all intraday data for the selected stock
           const stockDataForSymbol = response.data.realtime_data
             .filter((item: any) => item.symbol === this.selectedStock)
-            .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+            .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime()); // Sort chronologically
           
           if (stockDataForSymbol.length > 0) {
-            // Get the latest day's data
-            const latestData = stockDataForSymbol[0];
-            
-            // Simulate intraday data points using OHLC values
-            this.realtimeData = this.generateIntradayData(latestData);
+            // Use actual intraday data with datetime information
+            this.realtimeData = stockDataForSymbol.map((item: any) => ({
+              ...item,
+              timestamp: new Date(item.date).getTime() // Convert datetime string to timestamp
+            }));
             
             this.updateRealtimeChartData();
             
@@ -360,48 +360,7 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     ]);
   }
 
-  generateIntradayData(dailyData: any): any[] {
-    const baseDate = new Date(dailyData.date);
-    const marketOpen = new Date(baseDate);
-    marketOpen.setHours(9, 30, 0, 0); // 9:30 AM market open
-    
-    const marketClose = new Date(baseDate);
-    marketClose.setHours(16, 0, 0, 0); // 4:00 PM market close
-    
-    const intradayPoints = [];
-    const totalMinutes = (marketClose.getTime() - marketOpen.getTime()) / (1000 * 60);
-    const intervalMinutes = 30; // 30-minute intervals
-    const numPoints = Math.floor(totalMinutes / intervalMinutes);
-    
-    // Create intraday data points using OHLC values
-    for (let i = 0; i <= numPoints; i++) {
-      const timestamp = marketOpen.getTime() + (i * intervalMinutes * 60 * 1000);
-      let price;
-      
-      if (i === 0) {
-        price = dailyData.open;
-      } else if (i === numPoints) {
-        price = dailyData.close;
-      } else {
-        // Interpolate between open and close, with some variation using high/low
-        const progress = i / numPoints;
-        const basePrice = dailyData.open + (dailyData.close - dailyData.open) * progress;
-        
-        // Add some realistic variation using high/low bounds
-        const variation = (Math.random() - 0.5) * 0.02; // ±1% variation
-        price = Math.max(dailyData.low, Math.min(dailyData.high, basePrice * (1 + variation)));
-      }
-      
-      intradayPoints.push({
-        timestamp: timestamp,
-        close: Number(price.toFixed(2)),
-        symbol: dailyData.symbol,
-        date: dailyData.date
-      });
-    }
-    
-    return intradayPoints;
-  }
+
 
   renderStockChart(): void {
     /* guard against empty data or missing element */
@@ -502,11 +461,23 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
           backgroundColor: '#020117'
         },
         title: {
-          text: `${this.selectedStock} Intraday Data (Latest Trading Day)`,
+          text: `${this.selectedStock} Real-time Intraday Data (15-minute intervals)`,
           style: { color: '#F5F6FA' },
         },
         rangeSelector: {
-          enabled: false
+          enabled: true,
+          buttons: [
+            { type: 'hour', count: 1, text: '1H' },
+            { type: 'hour', count: 4, text: '4H' },
+            { type: 'all', text: 'All' }
+          ],
+          selected: 0,
+          buttonTheme: {
+            fill: 'rgba(255, 255, 255, 0.1)',
+            stroke: '#FF6B35',
+            style: { color: '#F5F6FA' }
+          },
+          inputEnabled: false
         },
         navigator : { enabled: false },
         scrollbar : { enabled: false },
@@ -523,14 +494,29 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
           gridLineColor: '#23242B',
           type: 'datetime'
         },
+        tooltip: {
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          style: { color: '#F5F6FA' },
+          formatter: function() {
+            const date = new Date(this.x!);
+            const dateStr = date.toLocaleDateString();
+            const timeStr = date.toLocaleTimeString();
+            return `<b>${dateStr} ${timeStr}</b><br/>${this.series.name}: <b>$${this.y?.toFixed(2)}</b>`;
+          }
+        },
         series: [
            {
              type : 'line',
-             name : `${this.selectedStock} Realtime Price`,
+             name : `${this.selectedStock} Price`,
              data : this.realtimeChartData,
              color: '#FF6B35', // orange color to differentiate from historical chart
-             marker: { fillColor: '#FFE066', lineColor: '#FF6B35', lineWidth: 2 },
-             tooltip: { valueDecimals: 2, valuePrefix: '$' },
+             marker: { 
+               fillColor: '#FFE066', 
+               lineColor: '#FF6B35', 
+               lineWidth: 2,
+               radius: 3,
+               enabled: true
+             },
            },
          ],
       } as Highcharts.Options);
