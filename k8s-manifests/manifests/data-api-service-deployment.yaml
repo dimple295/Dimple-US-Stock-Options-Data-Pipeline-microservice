@@ -51,7 +51,7 @@ spec:
             value: "US_Stock_Data"
           - name: INFLUXDB_BUCKET
             value: "fifteenmin_stockdata"
-          image: hdm08/data_api_service_arm2:latest
+          image: hdm08/data_api_service_arm10:latest
           name: data-api-service
           imagePullPolicy: IfNotPresent
           ports:

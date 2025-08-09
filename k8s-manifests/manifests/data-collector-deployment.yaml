@@ -54,7 +54,7 @@ spec:
               value: 403631c4756e4d00b52455514acd8124
             - name: TWELVE_DATA_API_5
               value: ece1bbcef7a341beb1629adabc723fdd
-          image: hdm08/data_collector_service_arm2:latest
+          image: hdm08/data_collector_service_arm10:latest
           name: data-collector
           imagePullPolicy: IfNotPresent
           ports:
