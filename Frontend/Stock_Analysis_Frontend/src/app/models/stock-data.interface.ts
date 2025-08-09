@@ -1,6 +1,6 @@
 export interface StockData {
   symbol: string;
-  date: string;
+  date: string; // Now contains datetime in format 'YYYY-MM-DD HH:MM:SS'
   open: number | null;
   high: number | null;
   low: number | null;

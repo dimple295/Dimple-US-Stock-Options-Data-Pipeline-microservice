@@ -71,10 +71,10 @@
         </div>
       </div>
       <div class="chart-card realtime-chart-card">
-        <div class="chart-title">Intraday Data (Latest Trading Day)</div>
+        <div class="chart-title">Real-time Intraday Data (15-minute intervals)</div>
         <div *ngIf="isRealtimeLoading" class="chart-loader">
           <mat-progress-spinner color="primary" mode="indeterminate" diameter="40"></mat-progress-spinner>
-          <div class="loader-text">Loading realtime data...</div>
+          <div class="loader-text">Loading real-time intraday data...</div>
         </div>
         <div *ngIf="realtimeError" class="chart-error">
           {{ realtimeError }}
