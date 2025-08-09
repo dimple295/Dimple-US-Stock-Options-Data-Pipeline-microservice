@@ -25,20 +25,32 @@ spec:
       #   - name: dockerhub-secret
       containers:
         - env:
-            - name: DJANGO_DEBUG
-              value: "True"
-            - name: DJANGO_SECRET_KEY
-              value: django-insecure-k^c404!2*woj(h(+ek*e#=0sh^qrjw9y-g34m^*qy=^=!43v%^
-            - name: SQL_DATABASE
-              value: us_stock_options_db
-            - name: SQL_DRIVER
-              value: ODBC Driver 18 for SQL Server
-            - name: SQL_PASSWORD
-              value: wearethebest@69
-            - name: SQL_SERVER
-              value: dash-gtd02.database.windows.net
-            - name: SQL_USERNAME
-              value: dash_gtd
+          - name: AZURE_SQL_CONNECTION_STRING
+            value: "{ODBC Driver 18 for SQL Server};Server=tcp:dash-gtd02.database.windows.net,1433;Database=us_stock_options_db;Uid=dash_gtd;Pwd=wearethebest@69;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"
+          - name: POSTGRES_CONNECTION_STRING
+            value: "postgresql://sa:Passw0rd!@postgres:5432/us_stock_options_db"
+          - name: SQL_SERVER
+            value: "dash-gtd02.database.windows.net"
+          - name: SQL_DATABASE
+            value: "us_stock_options_db"
+          - name: SQL_USERNAME
+            value: "dash_gtd"
+          - name: SQL_PASSWORD
+            value: "wearethebest@69"
+          - name: SQL_DRIVER
+            value: "ODBC Driver 18 for SQL Server"
+          - name: DJANGO_DEBUG
+            value: "True"
+          - name: DJANGO_SECRET_KEY
+            value: "django-insecure-k^c404!2*woj(h(+ek*e#=0sh^qrjw9y-g34m^*qy=^=!43v%^"
+          - name: INFLUXDB_URL
+            value: "https://us-east-1-1.aws.cloud2.influxdata.com"
+          - name: INFLUXDB_TOKEN
+            value: "-p4vPDiJyynco8tjaNhG2ch7A51SHtzN0ta3VsJ6Y1OqVyHtvuAL7K_gKOVmsYV47F_hqaNPlHKOdi6Y_C8Xjw=="
+          - name: INFLUXDB_ORG
+            value: "US_Stock_Data"
+          - name: INFLUXDB_BUCKET
+            value: "fifteenmin_stockdata"
           image: hdm08/data_api_service_arm2:latest
           name: data-api-service
           imagePullPolicy: IfNotPresent

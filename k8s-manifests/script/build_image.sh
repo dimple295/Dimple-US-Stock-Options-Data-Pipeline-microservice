@@ -21,11 +21,11 @@ for service in "${services[@]}"; do
     --load \
     "${BASE_PATH}Backend/${service}"
 done
-docker buildx build \
-    --platform linux/arm64 \
-    -t ${DOCKER_HUB_USERNAME}/frontend_arm2 \
-    --push \
-    "${BASE_PATH}Frontend/Stock_Analysis_Frontend"
+# docker buildx build \
+#     --platform linux/arm64 \
+#     -t ${DOCKER_HUB_USERNAME}/frontend_arm2 \
+#     --push \
+#     "${BASE_PATH}Frontend/Stock_Analysis_Frontend"
 
 
 
@@ -40,8 +40,8 @@ for service in "${services[@]}"; do
     "${BASE_PATH}Backend/${service}"
 done
 
-docker buildx build \
-    --platform linux/arm64 \
-    -t ${DOCKER_HUB_USERNAME}/frontend_arm2 \
-    --push \
-    "${BASE_PATH}Frontend/Stock_Analysis_Frontend"
+# docker buildx build \
+#     --platform linux/arm64 \
+#     -t ${DOCKER_HUB_USERNAME}/frontend_arm2 \
+#     --push \
+#     "${BASE_PATH}Frontend/Stock_Analysis_Frontend"
