@@ -22,7 +22,7 @@ export interface TopPerformingStock {
   providedIn: 'root'
 })
 export class StockDataService {
-  private readonly API_BASE_URL = 'http://localhost:8006';
+  private readonly API_BASE_URL = 'http://data-api-service:8006';
   private cachedTopStocks: TopPerformingStock[] = [];
   private isDataLoaded = false;
   private isLoading = false;

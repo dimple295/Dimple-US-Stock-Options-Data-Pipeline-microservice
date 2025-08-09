@@ -8,9 +8,17 @@ RUN curl https://packages.microsoft.com/keys/microsoft.asc | tee /etc/apt/truste
 RUN apt-get update \
     && ACCEPT_EULA=Y apt-get install -y msodbcsql18 \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
+    
 RUN apt-get update && apt-get install -y \
     postgresql-client \
     && rm -rf /var/lib/apt/lists/*
+
+# RUN apt-get update && apt-get install -y curl apt-transport-https gnupg unixodbc-dev locales && \
+#     echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && locale-gen && \
+#     curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
+#     curl https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
+#     apt-get update && ACCEPT_EULA=Y apt-get install -y msodbcsql18 && \
+#     apt-get clean && rm -rf /var/lib/apt/lists/*
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY . .

@@ -53,7 +53,7 @@ spec:
               value: processed-options-data
             - name: RUN_DB_HANDLER
               value: "True"
-          image: hdm08/database_writer_service_arm2:latest
+          image: hdm08/database_writer_service_arm10:latest
           name: database-writer
           imagePullPolicy: IfNotPresent
           ports:

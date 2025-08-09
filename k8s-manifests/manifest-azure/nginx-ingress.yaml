@@ -6,18 +6,8 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   ingressClassName: nginx
-  # tls:
-  #   - hosts:
-  #       - data-collector.localhost
-  #       - data-api.localhost
-  #       - data-processor.localhost
-  #       - database-writer.localhost
-  #       - file-writer.localhost
-  #       - grafana.localhost
-  #       - prometheus.localhost
-  #     secretName: ingress-tls-secret
   rules:
-    - host: data-collector.localhost
+    - host: data-collector.dash-gtd
       http:
         paths:
           - path: /
@@ -34,7 +24,7 @@ spec:
                 name: data-collector
                 port:
                   number: 8000
-    - host: data-api.localhost
+    - host: data-api.dash-gtd
       http:
         paths:
           - path: /
@@ -44,7 +34,7 @@ spec:
                 name: data-api-service
                 port:
                   number: 8006
-    - host: data-processor.localhost
+    - host: data-processor.dash-gtd
       http:
         paths:
           - path: /
@@ -54,7 +44,7 @@ spec:
                 name: data-processor
                 port:
                   number: 8001
-    - host: database-writer.localhost
+    - host: database-writer.dash-gtd
       http:
         paths:
           - path: /
@@ -64,7 +54,7 @@ spec:
                 name: database-writer
                 port:
                   number: 8002
-    - host: file-writer.localhost
+    - host: file-writer.dash-gtd
       http:
         paths:
           - path: /
@@ -74,7 +64,7 @@ spec:
                 name: file-writer
                 port:
                   number: 8003
-    - host: grafana.localhost
+    - host: grafana.dash-gtd
       http:
         paths:
           - path: /
@@ -84,7 +74,7 @@ spec:
                 name: prometheus-grafana
                 port:
                   number: 3000
-    - host: prometheus.localhost   
+    - host: prometheus.dash-gtd
       http:
         paths:
           - path: /
@@ -94,6 +84,16 @@ spec:
                 name: prometheus-kube-prometheus-prometheus
                 port:
                   number: 9090
+    - host: frontend.dash-gtd
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-service
+                port:
+                  number: 4200
   defaultBackend:
     service:
       name: data-collector

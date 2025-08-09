@@ -1,19 +1,18 @@
-# delete old cluster
-# kind delete cluster --name stock-cluster
 
-# # creating Cluster
-# echo "Creating Cluster: stock-cluster"
-# kind create cluster --config cluster/kind-config.yaml 
-# echo "stock-cluster Created"
-
-# update helm package and load images
 cd script
 chmod +x helm.sh
-cd scrip
-chmod +x build_image.sh
+echo "Installing important pacakages"
 ./helm.sh
-./load_image.sh
 cd ../
 
-# apply manifest
+echo "Deploying Kafka, Zookeeper and ingress"
+sleep 30
+kubectl apply -f manifest-azure
+
+echo "Deploying microservices with frontend"
+sleep 30
 kubectl apply -f manifests
+
+echo "Deploying service monitor of all microservices"
+sleep 30
+kubectl apply -f serviceMonitor
