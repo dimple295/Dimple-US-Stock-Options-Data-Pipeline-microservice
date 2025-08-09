@@ -60,7 +60,7 @@ class InfluxHandler:
             logger.error(f"Failed to initialize InfluxDB client: {e}")
             raise
 
-    def insert_data(self, data):
+    def write_data(self, data):
         if not isinstance(data, list):
             logger.error(f"Invalid data format: expected list, got {type(data)}")
             return
