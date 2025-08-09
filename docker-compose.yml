@@ -215,8 +215,8 @@ services:
 
     environment:
       - AZURE_SQL_CONNECTION_STRING={ODBC Driver 18 for SQL Server};Server=tcp:dash-gtd02.database.windows.net,1433;Database=us_stock_options_db;Uid=dash_gtd;Pwd=wearethebest@69;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;
-      - AWS_ACCESS_KEY_ID=AKIAV2ZNOWOQLV2DNDMR
-      - AWS_SECRET_ACCESS_KEY=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
+      - AWS_ACCESS_KEY_ID={}
+      - AWS_SECRET_ACCESS_KEY={}
       - S3_BUCKET_NAME=dash-gtd-us-east-1-processed-data
       - INFLUXDB_URL=https://us-east-1-1.aws.cloud2.influxdata.com
       - INFLUXDB_TOKEN=-p4vPDiJyynco8tjaNhG2ch7A51SHtzN0ta3VsJ6Y1OqVyHtvuAL7K_gKOVmsYV47F_hqaNPlHKOdi6Y_C8Xjw==
