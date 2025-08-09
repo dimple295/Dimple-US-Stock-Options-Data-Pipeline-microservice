@@ -187,7 +187,7 @@ services:
       - INFLUXDB_ORG=US_Stock_Data
       - INFLUXDB_BUCKET=fifteenmin_stockdata
 
-      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - KAFKA_BOOTSTRAP_SERVERS=kafka-service:9092
       - KAFKA_PROCESSED_DAILY=processed-daily-data
       - KAFKA_PROCESSED_15MIN=processed-15min-data
       - KAFKA_PROCESSED_OPTIONS=processed-options-data
@@ -245,7 +245,7 @@ services:
       - AZURE_SQL_CONNECTION_STRING={ODBC Driver 18 for SQL Server};Server=tcp:dash-gtd02.database.windows.net,1433;Database=us_stock_options_db;Uid=dash_gtd;Pwd=wearethebest@69;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;
 
       - POSTGRES_CONNECTION_STRING=postgresql://sa:Passw0rd!@postgres:5432/us_stock_options_db
-      - SQL_SERVER=dash-gtd.database.windows.net
+      - SQL_SERVER=dash-gtd02.database.windows.net
       - SQL_DATABASE=us_stock_options_db
       - SQL_USERNAME=dash_gtd
       - SQL_PASSWORD=wearethebest@69

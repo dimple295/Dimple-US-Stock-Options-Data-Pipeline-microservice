@@ -1,5 +1,7 @@
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 # helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+
 helm repo update
 
 helm install prometheus prometheus-community/kube-prometheus-stack \
@@ -24,9 +26,6 @@ helm install prometheus prometheus-community/kube-prometheus-stack \
 
 
 
-# helm install nginx-ingress ingress-nginx/ingress-nginx \
-#   --set controller.service.type=NodePort \
-#   --set controller.publishService.enabled=true
-
-
-
+helm install nginx-ingress ingress-nginx/ingress-nginx \
+  --set controller.service.type=NodePort \
+  --set controller.publishService.enabled=true
