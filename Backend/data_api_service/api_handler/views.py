@@ -436,17 +436,17 @@ class SearchStockView(APIView):
                     'total_realtime_rows': len(influx_stock_data)
                 }
             }
-            response_data = {
-                'status': 'success',
-                'data': {
-                    'stock_data': stock_data,
-                    'put_options': put_options,
-                    'call_options': call_options,
-                    'total_stock_rows': len(stock_data),
-                    'total_put_rows': len(put_options),
-                    'total_call_rows': len(call_options)
-                }
-            }
+            # response_data = {
+            #     'status': 'success',
+            #     'data': {
+            #         'stock_data': stock_data,
+            #         'put_options': put_options,
+            #         'call_options': call_options,
+            #         'total_stock_rows': len(stock_data),
+            #         'total_put_rows': len(put_options),
+            #         'total_call_rows': len(call_options)
+            #     }
+            # }
 
             return Response(response_data, status=status.HTTP_200_OK)
 
